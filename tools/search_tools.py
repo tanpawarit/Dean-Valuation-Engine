@@ -26,7 +26,6 @@ def extract_search_results(search_response: Dict) -> List[Dict]:
     
     return results
 
-
 @tool("search_with_serper", parse_docstring=True)
 def search_tool(query: str, api_key: Optional[str] = None) -> List[Dict]:
     """
@@ -87,3 +86,4 @@ def search_tool(query: str, api_key: Optional[str] = None) -> List[Dict]:
         raise requests.RequestException(f"Failed to perform search with Serper API: {str(e)}")
 
   
+
