@@ -77,14 +77,14 @@ model = init_chat_model(
     temperature=0.1
 )
 
-market_sizing_task = create_react_agent(
+market_sizing_analyst = create_react_agent(
     model=model,
     tools=[search_tool],
     prompt=prompt,
-    name="market_sizing_task",
+    name="market_sizing_analyst",
 )
 
-for chunk in market_sizing_task.stream({
+for chunk in market_sizing_analyst.stream({
     "messages": [
         {"role": "user", "content": "Please analyze NFLX"}
     ]

@@ -80,14 +80,14 @@ model = init_chat_model(
     temperature=0.1
 )
 
-core_business_task = create_react_agent(
+core_business_analyst = create_react_agent(
     model=model,
     tools=[search_tool],
     prompt=prompt,
-    name="core_business_task",
+    name="core_business_analyst",
 )
 
-for chunk in core_business_task.stream({
+for chunk in core_business_analyst.stream({
     "messages": [
         {"role": "user", "content": "Please analyze JPM"}
     ]
