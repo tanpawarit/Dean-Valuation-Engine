@@ -1,6 +1,6 @@
 import os 
 from yaml import safe_load, YAMLError
-from utils.logger import logger 
+from .logger import logger 
 
 CONFIG_PATH = os.path.join(os.getcwd(), "config.yaml")
 
