@@ -84,9 +84,10 @@ market_sizing_analyst = create_react_agent(
     name="market_sizing_analyst",
 )
 
-for chunk in market_sizing_analyst.stream({
-    "messages": [
-        {"role": "user", "content": "Please analyze NFLX"}
-    ]
-}):
-    pretty_print_messages(chunk)
+# for chunk in market_sizing_analyst.stream({
+#     "messages": [
+#         {"role": "user", "content": "Please analyze NFLX"}
+#     ]
+# }):
+#     pretty_print_messages(chunk)
+

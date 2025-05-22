@@ -87,9 +87,10 @@ core_business_analyst = create_react_agent(
     name="core_business_analyst",
 )
 
-for chunk in core_business_analyst.stream({
-    "messages": [
-        {"role": "user", "content": "Please analyze JPM"}
-    ]
-}):
-    pretty_print_messages(chunk)
+# for chunk in core_business_analyst.stream({
+#     "messages": [
+#         {"role": "user", "content": "Please analyze JPM"}
+#     ]
+# }):
+#     pretty_print_messages(chunk)
+
