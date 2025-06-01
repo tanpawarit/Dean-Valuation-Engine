@@ -1,154 +1,41 @@
-# Analyst Robot
+# Keys features
 
-An intelligent agent system for automated data analysis and processing.
+คุณสมบัติหลักของระบบวิเคราะห์หุ้น (Key Features of the Stock Analysis System)
+ระบบนี้ถูกออกแบบมาเพื่อทำการวิเคราะห์หุ้นอย่างเป็นระบบ โดยอาศัยโครงสร้างการทำงานแบบ Plan-and-Execute บน LangGraph ซึ่งเหมาะอย่างยิ่งสำหรับนักลงทุนที่มีกระบวนการหรือวิธีการวิเคราะห์หุ้นที่ค่อนข้างตายตัวและต้องการความสม่ำเสมอในการประเมิน
 
-## Project Structure
-
-```
-.
-├── src/                    # Source code directory
-│   ├── agents/            # AI agent implementations
-│   │   ├── project_manager.py    # Project management and coordination
-│   │   ├── qa_team/             # Quality assurance team agents
-│   │   ├── business_analyst_team/ # Business analysis specialists
-│   │   └── fundamental_analyst_team/ # Fundamental analysis experts
-│   ├── utils/             # Helper functions and utilities
-│   │   ├── config.py      # Configuration management
-│   │   ├── logger.py      # Logging system
-│   │   ├── pretty_print.py # Formatted output utilities
-│   │   └── __init__.py
-│   ├── orchestrators/     # Workflow orchestration logic
-│   │   └── hierarchical_orchestrator.py # Hierarchical task management
-│   ├── tools/             # Custom tools and utilities
-│   │   ├── web_loader_tools.py # Web data loading utilities
-│   │   ├── search_tools.py    # Search functionality
-│   │   └── __init__.py
-│   ├── data/              # Data processing and management
-│   │   └── __init__.py
-│   └── guardrails/        # Safety and validation checks
-│       └── __init__.py
-├── docs/                  # Documentation
-│   ├── agent_business_analyst.mkd    # Business analyst documentation
-│   ├── agent_fundamental_analyst.mkd # Fundamental analyst documentation
-│   ├── agent_moat_analyst.mkd        # Moat analysis documentation
-│   └── fundamental_framework.txt     # Analysis framework guide
-├── main.py               # Main application entry point
-├── config.yaml          # Configuration settings
-├── pyproject.toml       # Project dependencies and metadata
-├── agentic_test.ipynb   # Agent testing notebook
-├── agentic_test2.ipynb  # Additional agent testing
-├── test.ipynb           # General testing notebook
-├── hierarchical_agent_flow.png # System architecture diagram
-└── README.md            # This file
-```
-
-## Description
-
-Analyst Robot is a sophisticated AI-powered system designed for automated data analysis and processing. The project leverages modern AI technologies and follows a modular architecture to provide flexible and extensible data analysis capabilities.
-
-### Key Components
-
-- **Agents**: AI-powered components that handle specific analysis tasks
-  - Project Manager: Coordinates and manages the overall analysis workflow
-  - QA Team: Ensures quality and accuracy of analysis
-  - Business Analyst Team: Specializes in business metrics and market analysis
-  - Fundamental Analyst Team: Focuses on fundamental company analysis
-
-- **Orchestrators**: Coordinate and manage the flow of analysis workflows
-  - Hierarchical Orchestrator: Manages complex multi-level analysis tasks and team coordination
-
-- **Tools**: Custom utilities for data processing and analysis
-  - Web Loader Tools: Handles web data extraction and processing
-  - Search Tools: Provides advanced search capabilities for data gathering
-
-- **Utils**: Core utility functions
-  - Config: Manages system configuration
-  - Logger: Handles system logging
-  - Pretty Print: Formats output for better readability
-
-### Technology Stack
-
-- Python 3.12+
-- LangChain for AI agent framework
-- OpenAI integration for advanced AI capabilities
-- Pandas for data manipulation
-- BeautifulSoup4 for web scraping
-- LangGraph for workflow management
-
-### Dependencies
-
-The project uses modern Python packages including:
-- langchain >= 0.3.25
-- langchain-community >= 0.3.24
-- langchain-openai >= 0.3.17
-- langgraph >= 0.4.5
-- numpy >= 2.2.5
-- openai >= 1.78.1
-- pandas >= 2.2.3
-
-## Getting Started
-
-1. Ensure you have Python 3.12 or higher installed
-2. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/analyst_robot.git
-   cd analyst_robot
-   ```
-3. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-4. Install dependencies:
-   ```bash
-   pip install -e .
-   ```
-5. Configure your environment variables and settings in `config.yaml`
-6. Run the main application:
-   ```bash
-   python main.py
-   ```
-
-## Development
-
-For development, additional dependencies are available in the dev group:
-- ipykernel >= 6.29.5 (for Jupyter notebook support)
-- pytest >= 7.4.0 (for testing)
-- black >= 23.7.0 (for code formatting)
-- isort >= 5.12.0 (for import sorting)
-- flake8 >= 6.1.0 (for linting)
-
-### Development Setup
-
-1. Install development dependencies:
-   ```bash
-   pip install -e ".[dev]"
-   ```
-
-2. Run tests:
-   ```bash
-   pytest
-   ```
-
-3. Format code:
-   ```bash
-   black .
-   isort .
-   ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and ensure they pass
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support, please open an issue in the GitHub repository or contact the maintainers.
- 
+1. การจัดการกระบวนการทำงานแบบ Plan-and-Execute ที่ชัดเจน (Explicit Plan-and-Execute Workflow)
+คำอธิบาย: ระบบเริ่มต้นด้วย planner_node ที่สร้างแผนการวิเคราะห์ (list of tasks) อย่างชัดเจน จากนั้น executor_node จะดำเนินการตามแผนทีละขั้นตอน ทำให้ทั้งกระบวนการมีความโปร่งใสและติดตามได้ง่าย
+ข้อดี:
+คาดการณ์ได้ (Predictability): ทราบลำดับและขอบเขตของงานวิเคราะห์ล่วงหน้า
+ควบคุมได้ (Control): สามารถกำหนดและปรับเปลี่ยนแผนการวิเคราะห์ให้สอดคล้องกับกลยุทธ์ได้เต็มที่
+ตรวจสอบง่าย (Traceability): สามารถติดตามสถานะและความคืบหน้าของแต่ละขั้นตอนการวิเคราะห์ได้อย่างละเอียด
+เหตุผลที่เหมาะกับการวิเคราะห์หุ้นแบบมีวิธีการตายตัว:
+วิธีการลงทุนที่ตายตัวมักมีลำดับขั้นตอนการพิจารณาที่ชัดเจน (เช่น ตรวจสอบงบการเงิน -> วิเคราะห์โมเดลธุรกิจ -> ประเมินผู้บริหาร -> สรุป) ซึ่งโครงสร้าง Plan-and-Execute นี้สามารถจำลองและบังคับใช้กระบวนการดังกล่าวได้อย่างแม่นยำ ทำให้มั่นใจได้ว่าทุกการวิเคราะห์จะเป็นไปตามมาตรฐานที่กำหนดไว้ ไม่มีการข้ามขั้นตอนสำคัญ
+2. การวิเคราะห์โดยใช้ Agent เฉพาะทางแบบโมดูล (Modular Agent-Based Analysis)
+คำอธิบาย: ระบบใช้ Agent ที่มีความเชี่ยวชาญเฉพาะด้าน (เช่น FinancialStrengthAnalystAgent, BusinessAnalystAgent) โดยแต่ละ Agent รับผิดชอบการวิเคราะห์ในส่วนของตนเอง ทำให้การวิเคราะห์แต่ละส่วนมีความลึกซึ้งและตรงประเด็น
+ข้อดี:
+ความเชี่ยวชาญเฉพาะด้าน (Specialization): ได้ผลการวิเคราะห์ที่มีคุณภาพจาก Agent ที่ถูกฝึกฝนมาสำหรับงานนั้นๆ
+ดูแลรักษาง่าย (Maintainability): หากต้องการปรับปรุงการวิเคราะห์ส่วนใด ก็สามารถแก้ไขได้ที่ Agent นั้นๆ โดยไม่กระทบส่วนอื่น
+นำกลับมาใช้ใหม่ได้ (Reusability): Agent สามารถถูกเรียกใช้ในแผนการวิเคราะห์ที่แตกต่างกันได้
+เหตุผลที่เหมาะกับการวิเคราะห์หุ้นแบบมีวิธีการตายตัว:
+วิธีการลงทุนที่ตายตัวมักจะแบ่งการพิจารณาออกเป็นส่วนย่อยๆ ที่ชัดเจน เช่น การวิเคราะห์ปัจจัยเชิงปริมาณ, ปัจจัยเชิงคุณภาพ, หรือการประเมินความเสี่ยง การมี Agent เฉพาะทางสำหรับแต่ละส่วนช่วยให้การวิเคราะห์ในแต่ละมิตินั้นเป็นไปอย่างมีมาตรฐานและสอดคล้องกับหลักการลงทุนที่วางไว้
+3. การจัดการสถานะส่วนกลางด้วย LangGraph (Centralized State Management with LangGraph)
+คำอธิบาย: PlanExecuteState ใน LangGraph ทำหน้าที่เป็นศูนย์กลางในการจัดเก็บข้อมูลทั้งหมดที่เกี่ยวข้องกับการวิเคราะห์ ตั้งแต่คำค้นหาเริ่มต้น, แผนงาน, ผลลัพธ์ของแต่ละขั้นตอนที่ทำสำเร็จ, จนถึงผลสรุปสุดท้าย
+ข้อดี:
+ความโปร่งใสของข้อมูล (Data Transparency): ข้อมูลทั้งหมดรวมอยู่ในที่เดียว ทำให้ง่ายต่อการตรวจสอบและทำความเข้าใจภาพรวม
+ความต่อเนื่องของข้อมูล (Data Continuity): ผลลัพธ์จากขั้นตอนก่อนหน้าสามารถถูกส่งต่อไปยังขั้นตอนถัดไปได้อย่างราบรื่น
+เหตุผลที่เหมาะกับการวิเคราะห์หุ้นแบบมีวิธีการตายตัว:
+การวิเคราะห์หุ้นตามวิธีการที่กำหนดมักจะต้องนำผลลัพธ์จากขั้นตอนหนึ่งไปประกอบการพิจารณาในอีกขั้นตอนหนึ่ง การมี State ส่วนกลางช่วยให้มั่นใจได้ว่าข้อมูลที่ใช้ในการตัดสินใจแต่ละขั้นนั้นถูกต้อง ครบถ้วน และสอดคล้องกับผลการวิเคราะห์ก่อนหน้า ทำให้การสรุปผลสุดท้ายเป็นไปตามตรรกะของวิธีการลงทุนที่วางไว้
+4. การสรุปผลการวิเคราะห์แบบบูรณาการ (Integrated Summarization)
+คำอธิบาย: SummarizerAgent ถูกออกแบบมาเพื่อรวบรวมผลลัพธ์จากการวิเคราะห์ของ Agent ต่างๆ ในขั้นตอนก่อนหน้าทั้งหมด แล้วสังเคราะห์เป็นบทสรุปหรือคำแนะนำสุดท้ายที่กระชับและเข้าใจง่าย
+ข้อดี:
+ได้ข้อสรุปที่ครอบคลุม (Comprehensive Conclusion): บทสรุปจะพิจารณาข้อมูลจากทุกแง่มุมที่ได้วิเคราะห์มา
+ประหยัดเวลา (Time-Saving): ผู้ใช้ได้รับผลสรุปสำคัญโดยไม่ต้องอ่านรายละเอียดทั้งหมดของแต่ละขั้นตอน (แต่ยังสามารถดูได้หากต้องการ)
+เหตุผลที่เหมาะกับการวิเคราะห์หุ้นแบบมีวิธีการตายตัว:
+ไม่ว่าวิธีการลงทุนจะละเอียดเพียงใด สุดท้ายแล้วก็ต้องการข้อสรุปที่ชัดเจนเพื่อประกอบการตัดสินใจ SummarizerAgent ช่วยให้มั่นใจได้ว่าผลลัพธ์สุดท้ายนั้นมาจากการประมวลผลข้อมูลทั้งหมดตามขั้นตอนที่กำหนดไว้อย่างครบถ้วน ซึ่งเป็นหัวใจสำคัญของการลงทุนอย่างมีวินัยตามแบบแผน
+5. ความยืดหยุ่นในการกำหนดรายละเอียดของงาน (Task Definition Flexibility)
+คำอธิบาย: แม้จะมีแผนงานที่ชัดเจน แต่ task_description ที่ส่งให้แต่ละ Agent สามารถปรับเปลี่ยนให้เหมาะสมกับ Query เริ่มต้นหรือจุดที่ต้องการเน้นเป็นพิเศษได้ ทำให้ระบบไม่ตายตัวจนเกินไป
+ข้อดี:
+ปรับตัวได้ (Adaptability): สามารถเจาะลึกในบางประเด็นที่สำคัญสำหรับหุ้นแต่ละตัวได้ โดยยังคงอยู่ในกรอบของแผนงานหลัก
+เหตุผลที่เหมาะกับการวิเคราะห์หุ้นแบบมีวิธีการตายตัว:
+ถึงแม้ว่า "วิธีการ" จะตายตัว แต่ "ข้อมูลนำเข้า" (เช่น ชื่อหุ้น, อุตสาหกรรม) หรือ "สถานการณ์ตลาด" อาจแตกต่างกัน ระบบจึงยังคงความสามารถในการปรับรายละเอียดของแต่ละขั้นตอนย่อยเพื่อให้สอดคล้องกับบริบทเฉพาะหน้าได้ โดยไม่หลุดจากกรอบการวิเคราะห์หลัก
