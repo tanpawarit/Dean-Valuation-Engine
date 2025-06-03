@@ -1,9 +1,18 @@
 import os
 from datetime import datetime
-from langchain_openai import ChatOpenAI # หรือ init_chat_model ของคุณ
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
+from langchain_openai import ChatOpenAI
+from datetime import datetime
+from typing import TypedDict
 from src.utils import logger
+
+class StepOutput(TypedDict):
+    step_id: str
+    assigned_agent: str
+    task_description: str
+    output: str
 
 
 class SummarizerAgent:
@@ -56,25 +65,25 @@ class SummarizerAgent:
         # 2. Format the system prompt with the current date
         formatted_system_prompt = system_prompt_template.format(current_date_str=current_date_str)
         # 3. Create ChatPromptTemplate
-        self.prompt = ChatPromptTemplate.from_messages([
+        self.prompt: ChatPromptTemplate = ChatPromptTemplate.from_messages([
             ("system", formatted_system_prompt),
             ("human", "{input}"),
             MessagesPlaceholder(variable_name="agent_scratchpad"),
         ])
-        
+
         # 4. Define LLM
-        self.llm = ChatOpenAI(model="gpt-4o", temperature=0.1)
+        self.llm: BaseChatModel = ChatOpenAI(model="gpt-4o", temperature=0.1)
 
         # 5. Define Tools (empty for this agent)
-        self.tools = []
+        self.tools: list = []
 
         # The SummarizerAgent does not use tools, so no AgentExecutor is needed.
         # We will directly use the LLM with the prompt in the invoke method.
-        pass
+        # pass
 
-    def invoke(self, original_query: str, previous_steps_outputs: list[dict]) -> dict[str, str]:
+    def invoke(self, original_query: str, previous_steps_outputs: list[StepOutput]) -> dict[str, str]:
         # เตรียม input string สำหรับ Agent เหมือนเดิม
-        formatted_previous_outputs = "\n\nPreviously Executed Steps and Outputs:\n"
+        formatted_previous_outputs: str = "\n\nPreviously Executed Steps and Outputs:\n"
         for step_result in previous_steps_outputs:
             formatted_previous_outputs += (
                 f"\n--- Step {step_result['step_id']} ({step_result['assigned_agent']}) ---\n"
@@ -85,7 +94,7 @@ class SummarizerAgent:
 
         # Input ที่จะส่งให้ AgentExecutor จะอยู่ใน key "input"
         # ซึ่งจะถูก map เข้ากับ "{input}" ใน ChatPromptTemplate
-        combined_input_for_agent = (
+        combined_input_for_agent: str = (
             f"Original User Query:\n{original_query}\n\n"
             f"Based on the original query and the following outputs from specialized agents, please synthesize a final comprehensive response:\n"
             f"{formatted_previous_outputs}"
@@ -98,9 +107,9 @@ class SummarizerAgent:
             # Invoke the chain
             # MessagesPlaceholder for "agent_scratchpad" needs to be provided,
             # even if empty for a non-tool-using agent.
-            response_str = chain.invoke({
+            response_str: str = chain.invoke({
                 "input": combined_input_for_agent,
-                "agent_scratchpad": [] 
+                "agent_scratchpad": []
             })
             return {"final_result": response_str}
         except Exception as e:

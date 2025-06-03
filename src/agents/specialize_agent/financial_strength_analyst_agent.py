@@ -1,8 +1,13 @@
 import os
 from datetime import datetime
-from langchain.chat_models import init_chat_model
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import AgentExecutor, create_openai_functions_agent
+from langchain.chat_models import init_chat_model
+from langchain.agents import AgentExecutor, create_openai_functions_agent 
+from langchain_core.tools import BaseTool
+import os
+from datetime import datetime
+
 from src.tools.search_tools import search_tool
 from src.utils import logger
 
@@ -77,44 +82,41 @@ class FinancialStrengthAnalystAgent:
             '''
         )
 
-        self.system_prompt = self.template_str.format(
+        self.system_prompt: str = self.template_str.format(
             current_date=datetime.now().strftime("%Y-%m-%d")
         )
 
-        self.model = init_chat_model(
-            "openai:gpt-4.1", 
+        self.model: BaseChatModel = init_chat_model(
+            "openai:gpt-4.1",
             temperature=0.1
         )
-    
-        self.agent_prompt_template = ChatPromptTemplate.from_messages([
+
+        self.agent_prompt_template: ChatPromptTemplate = ChatPromptTemplate.from_messages([
             ("system", self.system_prompt),
             ("human", "{input}"),
             MessagesPlaceholder(variable_name="agent_scratchpad"),
         ])
 
-        self.tools = [search_tool] 
-        
+        self.tools: list[BaseTool] = [search_tool]
+
         self.agent = create_openai_functions_agent(llm=self.model, tools=self.tools, prompt=self.agent_prompt_template)
 
-        self.financial_strength_analyst_executor = AgentExecutor(
+        self.financial_strength_analyst_executor: AgentExecutor = AgentExecutor(
             agent=self.agent,
             tools=self.tools,
-            verbose=True, 
+            verbose=True,
             handle_parsing_errors="An error occurred while parsing the agent's response. Please try rephrasing or check the output format.",
             name="financial_strength_analyst_executor",
-            max_iterations=30, 
+            max_iterations=30,
         )
 
     def invoke(self, task_detail: str) -> str:
         try:
-            response_dict = self.financial_strength_analyst_executor.invoke({
+            response_dict: dict = self.financial_strength_analyst_executor.invoke({
                 "input": task_detail
             })
             return response_dict.get('output', f"Financial Strength Analyst Agent did not produce a final output for: {task_detail}")
         except Exception as e:
             logger.error(f"Error in Financial Strength Analyst Agent: {e}")
             return f"Error executing Financial Strength Analyst Agent: {e}"
-
-# def financial_strength_analyst_agent(task_detail: str) -> str:
-#     agent: FinancialStrengthAnalystAgent = FinancialStrengthAnalystAgent()
-#     return agent.invoke(task_detail)
+ 

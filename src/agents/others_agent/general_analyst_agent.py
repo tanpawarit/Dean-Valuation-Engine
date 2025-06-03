@@ -1,17 +1,20 @@
-import os
 from datetime import datetime
-from langchain.chat_models import init_chat_model 
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import AgentExecutor, create_openai_functions_agent
+from langchain.chat_models import init_chat_model
+from langchain.agents import AgentExecutor, create_openai_functions_agent 
+from langchain_core.tools import BaseTool  
+from datetime import datetime
+
 from src.tools.search_tools import search_tool
 
 
 class GeneralAnalystAgent:
     def __init__(self) -> None:
-        self.general_llm = init_chat_model("openai:gpt-3.5-turbo", temperature=0.1)
-        self.general_tools = [search_tool]
+        self.general_llm: BaseChatModel = init_chat_model("openai:gpt-3.5-turbo", temperature=0.1)
+        self.general_tools: list[BaseTool] = [search_tool]
         current_date_str: str = datetime.now().strftime("%Y-%m-%d")
- 
+
         system_prompt: str = (
             f'''
             You are a meticulous and highly skilled Financial Analyst. Your core objective is to deliver clear, data-driven, and insightful financial analysis. Always ground your responses in verifiable information and sound analytical principles.
@@ -29,7 +32,7 @@ class GeneralAnalystAgent:
             5.  **Professionalism**: Maintain an objective, impartial, and professional tone throughout your analysis. Focus on facts, data-driven insights, and well-reasoned deductions.
             '''
         ) 
-        self.general_react_prompt_template = ChatPromptTemplate.from_messages([
+        self.general_react_prompt_template: ChatPromptTemplate = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
             ("human", "{input}"),
             MessagesPlaceholder(variable_name="agent_scratchpad"),
@@ -39,7 +42,7 @@ class GeneralAnalystAgent:
             tools=self.general_tools,
             prompt=self.general_react_prompt_template
         )
-        self.general_step_agent_executor = AgentExecutor(
+        self.general_step_agent_executor: AgentExecutor = AgentExecutor(
             agent=self.general_step_agent,
             tools=self.general_tools,
             verbose=True,
@@ -49,7 +52,7 @@ class GeneralAnalystAgent:
         )
 
     def invoke(self, step_to_execute: str) -> str:
-        agent_response = self.general_step_agent_executor.invoke({
+        agent_response: dict = self.general_step_agent_executor.invoke({
             "input": step_to_execute
         })
         return agent_response.get('output', f"General React Agent did not produce a final output for: {step_to_execute}")

@@ -1,13 +1,13 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from datetime import datetime 
+from datetime import datetime
 from src.utils import logger
 from src.agents.specialize_agent.constant import SPECIAIZE_AGENT_DESCRIPTIONS
- 
- 
+from typing import Any
+
 class Planner:
-    def __init__(self) -> None: 
+    def __init__(self) -> None:
         prompt_template_content = f"""You are a master financial analysis planner. Your goal is to break down a complex user request into a series of actionable, ordered steps.
             Each step must be assignable to one of the available specialized agents.
             Today's date is {{current_date}}. Ensure all analysis plans are relevant to this date.
@@ -46,40 +46,39 @@ class Planner:
             User query: {{user_input}}
 
             Based on the user query, provide your plan as a JSON list of objects:
-        """ 
-        
+        """
+
         final_prompt_for_langchain: str = prompt_template_content.replace("{{current_date}}", "{current_date}").replace("{{user_input}}", "{user_input}")
-        
 
-        self.prompt = ChatPromptTemplate.from_template(final_prompt_for_langchain) 
+        self.prompt: ChatPromptTemplate = ChatPromptTemplate.from_template(final_prompt_for_langchain)
 
-        llm = ChatOpenAI(model="gpt-4o", temperature=0) 
+        llm: ChatOpenAI = ChatOpenAI(model="gpt-4o", temperature=0)
         self.chain = self.prompt | llm | JsonOutputParser()
 
-    def generate_plan(self, user_input: str) -> list:
-        current_date = datetime.now().strftime("%Y-%m-%d")
+    def generate_plan(self, user_input: str) -> list[dict[str, Any]]:
+        current_date: str = datetime.now().strftime("%Y-%m-%d")
         try:
-            plan = self.chain.invoke({
+            plan: list[dict[str, Any]] = self.chain.invoke({
                 "user_input": user_input,
                 "current_date": current_date
             })
-            
+
             if isinstance(plan, list):
-                if not plan: 
+                if not plan:
                     # TODO handle empty plan with fallback or none
-                    pass # ถ้า plan ว่าง และ prompt ควรจะจัดการได้แล้ว ก็ปล่อยให้เป็น list ว่างได้
- 
+                    pass  # ถ้า plan ว่าง และ prompt ควรจะจัดการได้แล้ว ก็ปล่อยให้เป็น list ว่างได้
+
                 required_keys: list[str] = ["step_id", "task_description", "assigned_agent"]
-                for step_idx, step in enumerate(plan): # เพิ่ม step_idx สำหรับ error message
+                for step_idx, step in enumerate(plan):  # เพิ่ม step_idx สำหรับ error message
                     if not isinstance(step, dict):
                         logger.info(f"Planner output step {step_idx + 1} is not a dictionary: {step}")
                         raise ValueError(f"Invalid plan structure: step {step_idx + 1} is not a dictionary.")
                     if not all(key in step for key in required_keys):
                         logger.info(f"Planner output step {step_idx + 1} is missing required keys: {step}")
                         raise ValueError(f"Invalid plan structure: step {step_idx + 1} missing keys.")
-                return plan  
+                return plan
             else:
-                logger.info(f"Planner output was not a list of dicts as expected: {plan}") 
+                logger.info(f"Planner output was not a list of dicts as expected: {plan}")
                 return [{"step_id": 1, "task_description": f"Planner error: Output was not a list. Original query: {user_input}", "assigned_agent": "GeneralAnalystAgent"}]
 
         except Exception as e:
