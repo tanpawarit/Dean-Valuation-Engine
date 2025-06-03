@@ -3,10 +3,8 @@ from datetime import datetime
 from langchain_openai import ChatOpenAI # หรือ init_chat_model ของคุณ
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
+from src.utils import logger
 
-from src.utils import Config
-all_configs = Config().get_config()
-os.environ["OPENAI_API_KEY"] = all_configs['openai']['token'] 
 
 class SummarizerAgent:
     def __init__(self) -> None:
@@ -106,7 +104,7 @@ class SummarizerAgent:
             })
             return {"final_result": response_str}
         except Exception as e:
-            print(f"Error in SummarizerAgent invoke: {e}")
+            logger.error(f"Error in SummarizerAgent invoke: {e}")
             return {"final_result": f"Error summarizing results: {e}"}
 
 # def summarizer_agent_func(original_query: str, previous_steps_outputs: list[dict]) -> str:

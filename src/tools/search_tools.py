@@ -1,6 +1,6 @@
 import os
 import requests
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from langchain_core.tools import tool
 
 def extract_search_results(search_response: Dict) -> List[Dict]:
@@ -13,7 +13,7 @@ def extract_search_results(search_response: Dict) -> List[Dict]:
     Returns:
         List[Dict]: List of formatted search results
     """
-    results = []
+    results: list[dict[str, Any]] = []
     
     # Extract organic results
     if 'organic' in search_response:
@@ -27,7 +27,7 @@ def extract_search_results(search_response: Dict) -> List[Dict]:
     return results
 
 @tool("search_with_serper", parse_docstring=True)
-def search_tool(query: str, api_key: Optional[str] = None) -> List[Dict]:
+def search_tool(query: str, api_key: Optional[str] = None) -> list[dict[str, Any]]:
     """
     Perform a Google-style web search using the Serper API.
 
@@ -41,7 +41,7 @@ def search_tool(query: str, api_key: Optional[str] = None) -> List[Dict]:
                                  attempt to retrieve it from the SERPER_API_KEY environment variable.
 
     Returns:
-        List[Dict]: A list of dictionaries, each containing:
+        list[dict[str, Any]]: A list of dictionaries, each containing:
             - 'title' (str): The title of the search result.
             - 'link' (str): The URL of the search result.
             - 'snippet' (str): A brief description or preview text of the result.
@@ -63,13 +63,13 @@ def search_tool(query: str, api_key: Optional[str] = None) -> List[Dict]:
     url = "https://google.serper.dev/search"
     
     # Headers for the request
-    headers = {
+    headers: dict[str, str] = {
         'X-API-KEY': api_key,
         'Content-Type': 'application/json'
     }
     
     # Request payload
-    payload = {
+    payload: dict[str, str] = {
         'q': query,
         'gl': 'us',  # Geographic location
         'hl': 'en'   # Language

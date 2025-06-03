@@ -1,16 +1,10 @@
 import os
 from datetime import datetime
-from src.utils import Config 
 from langchain.chat_models import init_chat_model 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import AgentExecutor, create_openai_functions_agent
-from src.tools.search_tools import search_tool 
+from src.tools.search_tools import search_tool
 
-all_configs = Config().get_config() 
-
-os.environ["OPENAI_API_KEY"] = all_configs['openai']['token']
-if all_configs['serper']['token']:
-    os.environ["SERPER_API_KEY"] = all_configs['serper']['token']
 
 class GeneralAnalystAgent:
     def __init__(self) -> None:

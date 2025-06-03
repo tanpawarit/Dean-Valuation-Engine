@@ -1,12 +1,14 @@
 from src.graph_nodes.graph_state import PlanExecuteState
 from src.agents.registry import planner_agent
+from src.utils import logger
 
 def planner_node(state: PlanExecuteState) -> PlanExecuteState:
-    print("--- PLANNER ---")
+    logger.info("--- PLANNER ---")
     query: str = state["original_query"]
     plan = planner_agent.generate_plan(query)
-    print(f"Generated Plan: {plan}")
+    logger.info(f"Generated Plan: {plan}")
     return {
+        "original_query": query,
         "plan": plan,
         "current_step_index": 0,
         "executed_steps": [],

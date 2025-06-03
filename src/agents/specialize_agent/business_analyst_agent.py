@@ -1,16 +1,11 @@
 import os
 from datetime import datetime
-from src.utils import Config # Assuming this is correctly defined elsewhere
 from langchain.chat_models import init_chat_model # Assuming this is correctly defined elsewhere
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from src.tools.search_tools import search_tool
+from src.utils import logger
 
-all_configs = Config().get_config()
-
-os.environ["OPENAI_API_KEY"] = all_configs['openai']['token']
-if all_configs['serper']['token']:
-    os.environ["SERPER_API_KEY"] = all_configs['serper']['token']
 
 class BusinessAnalystAgent:
     def __init__(self) -> None:
@@ -122,7 +117,7 @@ class BusinessAnalystAgent:
             })
             return response_dict.get('output', f"Business Analyst Agent did not produce a final output for: {task_detail}")
         except Exception as e:
-            print(f"Error in Business Analyst Agent: {e}")
+            logger.error(f"Error in Business Analyst Agent: {e}")
             return f"Error executing Business Analyst Agent: {e}"
 
 # def business_analyst_agent(task_detail: str) -> str:

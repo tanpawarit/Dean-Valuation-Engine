@@ -1,6 +1,6 @@
-from .planner_agent import Planner
-from .others_agent.general_analyst_agent import GeneralAnalystAgent
-from .specialize_agent import BusinessAnalystAgent, FinancialStrengthAnalystAgent, SummarizerAgent
+from src.agents.planner_agent import Planner
+from src.agents.others_agent.general_analyst_agent import GeneralAnalystAgent
+from src.agents.specialize_agent import BusinessAnalystAgent, FinancialStrengthAnalystAgent, SummarizerAgent
 from typing import Any
 
 planner_agent: Planner = Planner()

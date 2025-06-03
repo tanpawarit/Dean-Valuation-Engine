@@ -1,31 +1,13 @@
-import os
-import re
-from typing import List, Dict, Optional, Literal, Any # Removed TypedDict as PlanExecuteState is imported
-from langgraph.graph import StateGraph, END
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.output_parsers import JsonOutputParser
-import json
-from datetime import datetime
-from src.tools.search_tools import search_tool
-from src.utils import Config
-from langchain.chat_models import init_chat_model
-from langgraph.prebuilt import create_react_agent
-from langchain.agents import AgentExecutor, create_openai_functions_agent
-
+from src.utils import load_app_config
+load_app_config() # Load config and set ENV VARS FIRST
  
-from src.graph_nodes.graph_state import PlanExecuteState
-from src.agents.registry import AGENT_REGISTRY  
+ 
+from src.graph_nodes.graph_state import PlanExecuteState 
 from src.graph_nodes.executor_logic import executor_node
 from src.graph_nodes.planner_logic import planner_node
 from src.graph_nodes.conditional_logic import should_continue
 from src.graph_nodes.state_handlers import handle_error_node, handle_success_node
-
-all_configs = Config().get_config()
-
-os.environ["OPENAI_API_KEY"] = all_configs['openai']['token']
-os.environ["SERPER_API_KEY"] = all_configs['serper']['token']
-   
+from langgraph.graph import StateGraph, END
 # --- Construct the Graph ---
 workflow: StateGraph = StateGraph(PlanExecuteState)
 
@@ -70,6 +52,7 @@ if __name__ == "__main__":
     
     print(f"\n--- Running Graph for Query: '{initial_query}' ---")
     final_state = None
+    s = {}
     for s in app.stream(inputs, {"recursion_limit": 15}): # Added recursion_limit
         print(f"\n--- Current State Snapshot ---")
         # Filter out potentially very long outputs for snapshot printing

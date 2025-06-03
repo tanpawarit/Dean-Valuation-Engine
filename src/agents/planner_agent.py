@@ -1,13 +1,10 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from datetime import datetime
-import os
-from src.utils import Config
+from datetime import datetime 
+from src.utils import logger
 from src.agents.specialize_agent.constant import SPECIAIZE_AGENT_DESCRIPTIONS
  
-all_configs = Config().get_config()
-os.environ["OPENAI_API_KEY"] = all_configs['openai']['token'] 
  
 class Planner:
     def __init__(self) -> None: 
@@ -75,16 +72,16 @@ class Planner:
                 required_keys: list[str] = ["step_id", "task_description", "assigned_agent"]
                 for step_idx, step in enumerate(plan): # เพิ่ม step_idx สำหรับ error message
                     if not isinstance(step, dict):
-                        print(f"Planner output step {step_idx + 1} is not a dictionary: {step}")
+                        logger.info(f"Planner output step {step_idx + 1} is not a dictionary: {step}")
                         raise ValueError(f"Invalid plan structure: step {step_idx + 1} is not a dictionary.")
                     if not all(key in step for key in required_keys):
-                        print(f"Planner output step {step_idx + 1} is missing required keys: {step}")
+                        logger.info(f"Planner output step {step_idx + 1} is missing required keys: {step}")
                         raise ValueError(f"Invalid plan structure: step {step_idx + 1} missing keys.")
                 return plan  
             else:
-                print(f"Planner output was not a list of dicts as expected: {plan}") 
+                logger.info(f"Planner output was not a list of dicts as expected: {plan}") 
                 return [{"step_id": 1, "task_description": f"Planner error: Output was not a list. Original query: {user_input}", "assigned_agent": "GeneralAnalystAgent"}]
 
         except Exception as e:
-            print(f"Error generating plan: {e}")
+            logger.info(f"Error generating plan: {e}")
             return [{"step_id": 1, "task_description": f"Error in planning process. Original query: {user_input}", "assigned_agent": "GeneralAnalystAgent"}]
