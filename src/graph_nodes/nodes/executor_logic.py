@@ -4,7 +4,7 @@ from src.agents.registry import AGENT_REGISTRY
 from src.graph_nodes.graph_state import PlanExecuteState
 from src.utils import logger
 
-def executor_node(state: PlanExecuteState) -> dict:  
+def executor_node(state: PlanExecuteState) -> dict[str, Any]:  
     logger.info(f"--- EXECUTOR ---")
     plan: List[dict] = state["plan"]
     current_step_idx: int = state["current_step_index"]
