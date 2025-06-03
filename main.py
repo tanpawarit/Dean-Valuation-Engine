@@ -1,6 +1,6 @@
 import os
 import re
-from typing import TypedDict, List, Dict, Optional
+from typing import TypedDict, List, Dict, Optional, Literal, Any
 from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -37,7 +37,7 @@ financial_strength_analyst_agent = FinancialStrengthAnalystAgent()
 business_analyst_agent = BusinessAnalystAgent()
 summarizer_agent = SummarizerAgent()
 
-AGENT_REGISTRY = {
+AGENT_REGISTRY: dict[str, Any] = {
     "BusinessAnalystAgent": business_analyst_agent,
     "FinancialStrengthAnalystAgent": financial_strength_analyst_agent, 
     "SummarizerAgent": summarizer_agent,
@@ -46,7 +46,7 @@ AGENT_REGISTRY = {
  
 def planner_node(state: PlanExecuteState) -> PlanExecuteState:
     print("--- PLANNER ---")
-    query = state["original_query"]
+    query: str = state["original_query"]
     plan = planner_agent.generate_plan(query)
     print(f"Generated Plan: {plan}")
     return {
@@ -57,82 +57,96 @@ def planner_node(state: PlanExecuteState) -> PlanExecuteState:
         "final_result": None
     }
 
-def executor_node(state: PlanExecuteState) -> PlanExecuteState:
+def executor_node(state: PlanExecuteState) -> dict:  
     print(f"--- EXECUTOR ---")
-    plan = state["plan"]
-    current_step_idx = state["current_step_index"]
-    executed_steps_history = state["executed_steps"]
+    plan: List[dict] = state["plan"]
+    current_step_idx: int = state["current_step_index"]
+    executed_steps_history: List[dict] = state["executed_steps"]
 
     if current_step_idx >= len(plan):
-        print("Execution complete, no more steps in the plan.")
-        return {"error_message": "Execution attempted beyond plan length."} # Should be caught by conditional edge
+        print("Execution complete, no more steps in the plan.") 
+        return {"error_message": "Execution attempted beyond plan length."}
 
-    current_step_details = plan[current_step_idx]
-    task_description = current_step_details["task_description"]
-    agent_name = current_step_details["assigned_agent"]
+    current_step_details: dict = plan[current_step_idx]
+    task_description: str = current_step_details["task_description"]
+    agent_name: str = current_step_details["assigned_agent"]
     print(f"Executing Step {current_step_details['step_id']}: '{task_description}' with {agent_name}")
 
-    agent_to_execute = AGENT_REGISTRY.get(agent_name)
+    agent_to_execute: Any | None = AGENT_REGISTRY.get(agent_name)
+    
+    # Initialize variables to store results for the current step
+    step_output_content: Optional[dict[str, Any] | str] = None # Content of the output from the agent
+    step_status: Literal["pending", "success", "error"] = "pending" # Will be 'success' or 'error'
+    error_message_for_state: Optional[str] = None # Error message to be put into state.error_message if this step fails
+    
+    # Initialize new_final_result with the current value from the state.
+    # This variable will hold the potential new final_result if SummarizerAgent runs.
+    new_final_result: Optional[str] = state.get("final_result")
 
     if not agent_to_execute:
         print(f"Error: Agent '{agent_name}' not found.")
-        output = f"Error: Agent '{agent_name}' not found for task: {task_description}"
-        step_result = {**current_step_details, "output": output, "status": "error"}
+        step_output_content = f"Error: Agent '{agent_name}' not found for task: {task_description}"
+        step_status = "error"
+        error_message_for_state = step_output_content
     else:
         try:
             if agent_name == "SummarizerAgent":
                 # SummarizerAgent needs the original query and all previous executed steps
-                output = agent_to_execute.invoke(
+                raw_agent_output = agent_to_execute.invoke(
                     original_query=state["original_query"],
-                    previous_steps_outputs=executed_steps_history # Pass history
+                    previous_steps_outputs=executed_steps_history
                 )
+                # 'raw_agent_output' from SummarizerAgent is expected to be a dict like {"final_result": "summary"}
+                summary_text = raw_agent_output.get("final_result")
+                if summary_text is not None:
+                    print(f"Output from {agent_name} (Summary): {summary_text[:200]}...")
+                    step_output_content = raw_agent_output # Store the full dict as output for history
+                    step_status = "success"
+                    new_final_result = summary_text # Update potential new_final_result
+                else:
+                    error_detail: str = f"SummarizerAgent output missing 'final_result' key. Output: {raw_agent_output}"
+                    print(f"Error: {error_detail}")
+                    step_output_content = {"error": error_detail, "details": raw_agent_output}
+                    step_status = "error"
+                    error_message_for_state = "SummarizerAgent output error: Missing 'final_result' key."
+
             else:
                 # Other agents take only the task description
-                raw_output = agent_to_execute.invoke(task_description)
-                output_for_log = str(raw_output)[:200] # Assuming other agents return string or convertible
-                output_for_step = raw_output
-
-            # Handle output for logging and step result
-            if agent_name == "SummarizerAgent":
-                # 'output' from SummarizerAgent is a dict like {"final_result": "summary"}
-                summary_text = output.get("final_result", "Error: Summarizer did not produce final_result key.")
-                print(f"Output from {agent_name} (Summary): {summary_text[:200]}...")
-                step_result = {**current_step_details, "output": output, "status": "success"}
-                # Set the final_result in the state directly here
-                state["final_result"] = summary_text 
-            else:
+                raw_agent_output = agent_to_execute.invoke(task_description)
+                output_for_log: str = str(raw_agent_output)[:200]
                 print(f"Output from {agent_name}: {output_for_log}...")
-                step_result = {**current_step_details, "output": output_for_step, "status": "success"}
+                step_output_content = raw_agent_output # Store the direct output for history
+                step_status = "success"
 
         except Exception as e:
-            print(f"Error executing step with {agent_name}: {e}")
-            error_output_msg = f"Error during execution by {agent_name}: {str(e)}"
-            step_result = {**current_step_details, "output": error_output_msg, "status": "error"}
-            # Optionally, set an error message in the state for replanning or specific handling
-            # return {"error_message": f"Failed at step {current_step_details['step_id']} with {agent_name}"}
+            error_detail: str = f"Error executing step with {agent_name}: {e}"
+            print(error_detail)
+            step_output_content = error_detail # Error message for history
+            step_status = "error"
+            error_message_for_state = error_detail # Error message for state
 
-    updated_executed_steps = executed_steps_history + [step_result]
+    # Construct the result for the current step to be added to history
+    current_step_result_for_history = {
+        **current_step_details, # Includes step_id, task_description, assigned_agent
+        "output": step_output_content,
+        "status": step_status
+    }
+    updated_executed_steps = executed_steps_history + [current_step_result_for_history]
     
-    # Prepare the dictionary to be returned for state update
-    current_final_result = state.get("final_result") # Preserve existing final_result if any
-
-    update_dict: PlanExecuteState = {
-        "original_query": state["original_query"],
-        "plan": state["plan"],
+    # Prepare the dictionary with only the changed parts of the state for returning
+    # Note: `Dict` is already imported from `typing`.
+    return_payload: Dict[str, any] = {
         "executed_steps": updated_executed_steps,
         "current_step_index": current_step_idx + 1,
-        "error_message": None if step_result["status"] == "success" else step_result["output"],
-        "final_result": current_final_result # Start with existing or None
+        "error_message": error_message_for_state, # This will be the error message from this step or None
     }
 
-    # If SummarizerAgent just ran and successfully produced a summary, update final_result
-    if agent_name == "SummarizerAgent" and step_result["status"] == "success":
-        # 'output' from SummarizerAgent is a dict like {"final_result": "summary"}
-        # This was already set in state["final_result"] = summary_text earlier in the try block
-        # So, we ensure it's correctly propagated from the state which was updated in the try block.
-        update_dict["final_result"] = state.get("final_result")
-    
-    return update_dict
+    # (i.e., new_final_result is different from the final_result in the incoming state).
+    # LangGraph will preserve the old value of 'final_result' if it's not in the payload.
+    if new_final_result != state.get("final_result"):
+        return_payload["final_result"] = new_final_result
+        
+    return return_payload
     
 
 
@@ -154,13 +168,39 @@ def should_continue(state: PlanExecuteState) -> str:
     return "executor_node"
 
 
+def handle_error_node(state: PlanExecuteState) -> dict:
+    '''
+    Handles the state update for the error_node.
+    Sets a final_result indicating an error and preserves the error_message.
+    '''
+    error_message = state.get('error_message', 'Any error')
+    print(f'--- ERROR NODE: Graph ended with error: {error_message} ---')
+    return {
+        'final_result': f'Graph ended with error: {error_message}',
+        'error_message': error_message
+    }
+
+def handle_success_node(state: PlanExecuteState) -> dict:
+    '''
+    Handles the state update for the success_node.
+    Sets the final_result based on what's in the state, or a default success message.
+    '''
+    final_result: Optional[str] = state.get('final_result')
+    if final_result:
+        print(f'--- SUCCESS NODE: Plan finished. Final Result: {str(final_result)[:200]}... ---')
+        return {'final_result': final_result}
+    else:
+        success_message = 'Plan finished successfully, but no specific final result was set in the state.'
+        print(f'--- SUCCESS NODE: {success_message} ---')
+        return {'final_result': success_message}
+
 # --- 5. Construct the Graph ---
-workflow = StateGraph(PlanExecuteState)
+workflow: StateGraph = StateGraph(PlanExecuteState)
 
 workflow.add_node("planner_node", planner_node)
 workflow.add_node("executor_node", executor_node)
-workflow.add_node("error_node", lambda state: {"final_result": f"Graph ended with error: {state.get('error_message', 'Unknown error')}", "error_message": state.get("error_message", "Unknown error")}) # A simple error end node
-workflow.add_node("success_node", lambda state: {"final_result": state.get("final_result") if state.get("final_result") else "Plan finished successfully, but no specific final result was set in the state."}) # Success node
+workflow.add_node("error_node", handle_error_node)
+workflow.add_node("success_node", handle_success_node)
 
 # Define the entry point
 workflow.set_entry_point("planner_node")
@@ -188,13 +228,10 @@ app = workflow.compile()
 
 # display(Image(app.get_graph(xray=True).draw_mermaid_png()))
 
-if __name__ == "__main__":
-    # Ensure OPENAI_API_KEY and SERPER_API_KEY (if used by tools) are set in environment
-    # Example: os.environ["OPENAI_API_KEY"] = "your_key"
-    #          os.environ["SERPER_API_KEY"] = "your_key" (if search_tool uses it)
-    
-    initial_query = "Provide a comprehensive financial strength and business model analysis for Apple Inc. (AAPL)."
-    # initial_query = "What is the current D/E ratio for Microsoft?" # Test simpler query
+if __name__ == "__main__": 
+
+    # initial_query = "Provide a comprehensive financial strength and business model analysis for Apple Inc. (AAPL)."
+    initial_query = "What is the current D/E ratio for Microsoft?" # Test simpler query
 
     inputs = {"original_query": initial_query}
     
