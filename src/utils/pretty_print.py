@@ -1,5 +1,6 @@
 from langchain_core.messages import convert_to_messages
 
+# TODO: remove this function or file
 def print_agent_response(chunk):
     if 'agent' in chunk and 'messages' in chunk['agent']:
         for message in chunk['agent']['messages']:

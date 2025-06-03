@@ -1,17 +1,17 @@
 import os
 import requests
-from typing import Dict, List, Optional, Any
+from typing import Optional, Any
 from langchain_core.tools import tool
 
-def extract_search_results(search_response: Dict) -> List[Dict]:
+def extract_search_results(search_response: dict[str, Any]) -> list[dict[str, Any]]:
     """
     Extract and format search results from Serper API response.
     
     Args:
-        search_response (Dict): Raw response from Serper API
+        search_response (dict[str, Any]): Raw response from Serper API
         
     Returns:
-        List[Dict]: List of formatted search results
+        list[dict[str, Any]]: List of formatted search results
     """
     results: list[dict[str, Any]] = []
     
@@ -87,3 +87,4 @@ def search_tool(query: str, api_key: Optional[str] = None) -> list[dict[str, Any
 
   
 
+#TODO เพิ่ม Tool data eg 59-2 or something
