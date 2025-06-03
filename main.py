@@ -16,7 +16,7 @@ from langchain.agents import AgentExecutor, create_openai_functions_agent
 
 from src.agents.specialize_agent import BusinessAnalystAgent, FinancialStrengthAnalystAgent, SummarizerAgent
 from src.agents.planner_agent import Planner
-from src.agents.general_analyst_agent import GeneralAnalystAgent
+from src.agents.others_agent.general_analyst_agent import GeneralAnalystAgent
 
 all_configs = Config().get_config()
 
@@ -117,6 +117,17 @@ def executor_node(state: PlanExecuteState) -> dict:
                 print(f"Output from {agent_name}: {output_for_log}...")
                 step_output_content = raw_agent_output # Store the direct output for history
                 step_status = "success"
+                
+                # If this is the GeneralAnalystAgent and it's the only step in the plan,
+                # set its output as the final result.
+                if agent_name == "GeneralAnalystAgent" and len(plan) == 1:
+                    if isinstance(raw_agent_output, str):
+                        new_final_result = raw_agent_output
+                        print(f"GeneralAnalystAgent is the only step. Setting final_result: {str(new_final_result)[:200] if new_final_result is not None else 'None'}...")
+                    elif isinstance(raw_agent_output, dict) and "response" in raw_agent_output: # Assuming GeneralAnalyst might return a dict
+                        new_final_result = raw_agent_output["response"]
+                        print(f"GeneralAnalystAgent is the only step (from dict). Setting final_result: {str(new_final_result)[:200] if new_final_result is not None else 'None'}...")
+                    # Add more conditions here if GeneralAnalystAgent can return other types
 
         except Exception as e:
             error_detail: str = f"Error executing step with {agent_name}: {e}"
@@ -231,8 +242,9 @@ app = workflow.compile()
 if __name__ == "__main__": 
 
     # initial_query = "Provide a comprehensive financial strength and business model analysis for Apple Inc. (AAPL)."
-    initial_query = "What is the current D/E ratio for Microsoft?" # Test simpler query
+    # initial_query = "What is the current D/E ratio for Microsoft?" # Test simpler query
 
+    initial_query = "hi there" # Test simpler query
     inputs = {"original_query": initial_query}
     
     print(f"\n--- Running Graph for Query: '{initial_query}' ---")

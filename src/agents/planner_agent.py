@@ -30,22 +30,16 @@ class Planner:
 
             **Instructions for Planning:**
             1.  **Understand the Request:** Carefully analyze the user's overall goal. Determine if the request is related to financial analysis or a general conversational query.
-            2.  **Financial Analysis Requests:**
-                a.  **Break Down:** Decompose the financial analysis request into logical sub-tasks.
+            2.  **Specialized Analysis Requests:**
+                a.  **Break Down:** Decompose the specialized analysis request into logical sub-tasks.
                 b.  **Assign Agents:** For each sub-task, identify the most appropriate agent from the list above.
                 c.  **Order Tasks:** Ensure the tasks are in a logical sequence.
                 d.  **Be Specific:** Clearly define what each task should achieve.
-                e.  **Final Summary:** If the request requires a consolidated answer from multiple analytical steps, ensure the final step is assigned to the **SummarizerAgent**.
+                e.  **Final Summary with SummarizerAgent:** If the plan involves ANY of the following specialized agents (FinancialStrengthAnalystAgent, BusinessAnalystAgent), then the VERY FINAL step in the plan MUST be assigned to the **SummarizerAgent**. The SummarizerAgent will use the original query and all outputs from previous steps to generate a comprehensive final answer. This applies even if there's only one specialized step before the summary.
             3.  **Non-Analytical/General Conversational Queries:**
-                a.  If the user query is a general greeting, a simple question not requiring financial analysis (e.g., "hi how are you", "what's your name?"), or seems unrelated to your financial analysis capabilities, create a single step plan.
-                b.  This single step should be assigned to the **GeneralAnalystAgent**.
+                a.  If the user query is a general greeting, a simple question not requiring financial analysis (e.g., "hi how are you", "what's your name?"), or seems unrelated to your financial analysis capabilities (i.e., does NOT require FinancialStrengthAnalystAgent or BusinessAnalystAgent), create a single step plan.
+                b.  This single step should be assigned to the **GeneralAnalystAgent** ONLY. Do NOT include a SummarizerAgent for these types of queries.
                 c.  The task_description for this step should be the original user query, possibly with an instruction for the GeneralAnalystAgent to provide a polite, general response or acknowledge the query. For example: "User query: '{{user_input}}'. Provide a general acknowledgement or response."
-                    {'''
-                    # หมายเหตุเกี่ยวกับการ escape ในตัวอย่างย่อย:
-                    # '{{user_input}}' (ปีกกาคู่) ใน f-string ด้านบนจะกลายเป็นสตริง '{user_input}' (ปีกกาเดี่ยว)
-                    # ใน prompt ที่ LangChain ได้รับ ซึ่งถูกต้องสำหรับการแสดงเป็นตัวอย่างให้ LLM เห็น
-                    # และ LangChain จะไม่พยายาม format มันอีกเพราะมันอยู่ในเครื่องหมายคำพูดของตัวอย่าง
-                    '''}
             4.  **Output Format:** Respond ONLY with a valid JSON list of objects as described below. Do not include any other text before or after the JSON.
                 Each object in the JSON list must have the following keys:
                 * "step_id": (integer) A sequential identifier for the step, starting from 1.
