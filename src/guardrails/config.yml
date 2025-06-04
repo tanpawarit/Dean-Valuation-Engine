@@ -1,0 +1,54 @@
+# กำหนดโมเดลภาษาขนาดใหญ่ (LLM) ที่ NeMo Guardrails จะใช้งาน
+# โดยทั่วไปจะใช้โมเดลที่สามารถสร้างข้อความได้
+models:
+  - type: main
+    engine: openai
+    model: gpt-3.5-turbo
+
+# กำหนดคลาสของ Rails ที่ต้องการใช้งาน
+# Input rails จะถูกเรียกใช้เมื่อได้รับข้อมูลใหม่จากผู้ใช้
+rails:
+  input:
+    flows:
+      - mask sensitive data on input # ซ่อนข้อมูลที่ละเอียดอ่อนจากข้อมูลเข้าของผู้ใช้
+
+  # Output rails จะถูกเรียกใช้หลังจากบอทสร้างข้อความขึ้นมา
+  output:
+    flows:
+      - self check facts         # ตรวจสอบข้อเท็จจริงของการตอบสนองของบอท
+      - self check hallucination # ตรวจสอบการหลอน/ข้อมูลที่สร้างขึ้นเองของการตอบสนองของบอท 
+
+# กำหนดค่าเพิ่มเติม
+config:
+  # กำหนดประเภทของข้อมูลที่ละเอียดอ่อนที่ควรถูกซ่อนในข้อมูลเข้าของผู้ใช้
+  sensitive_data_detection:
+    input:
+      entities:
+        - PERSON       # ชื่อบุคคล
+        - EMAIL_ADDRESS # ที่อยู่อีเมล
+
+# กำหนด Prompts (คำสั่ง/ชุดคำถาม) สำหรับการทำงานของ Guardrails
+prompts:
+  - task: output_parser_check # Prompt สำหรับตรวจสอบการจัดรูปแบบผลลัพธ์
+    content: |
+      You are an expert analyst.
+      Your task is to process the user's request.
+      You MUST only return a JSON object with a single key 'summary'.
+      The value of the 'summary' key should be a concise summary of the input document or text provided by the user.
+      The summary must not be empty.
+      The summary must be at most 500 characters long.
+      Do not include any other text, explanations, or formatting outside of this JSON object.
+
+  - task: self_check_facts # Prompt สำหรับตรวจสอบข้อเท็จจริง
+    output_parser: yes_no
+    content: |
+      Your task is to check if the last statement made by the bot is factually correct.
+      The last statement is: "{{ last_bot_utterance }}"
+      Is the statement factually correct?
+      Answer Yes or No.
+
+  - task: self_check_hallucination # Prompt สำหรับตรวจสอบการหลอน
+    content: |
+      Is the last bot utterance making up information or hallucinating?
+      The last bot utterance is: "{{ last_bot_utterance }}"
+      Answer Yes or No.

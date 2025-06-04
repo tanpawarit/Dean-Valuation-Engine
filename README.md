@@ -2,7 +2,9 @@
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![LangChain](https://img.shields.io/badge/LangChain-Framework-green)](https://github.com/langchain-ai/langchain)
+[![LangGraph](https://img.shields.io/badge/LangGraph-Framework-purple)](https://github.com/langchain-ai/langgraph)
 [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-orange)](https://openai.com/)
+[![NemoGuardrails](https://img.shields.io/badge/NemoGuardrails-Framework-purple)](https://github.com/NVIDIA/NeMo-Guardrails)
 
 ## Overview
 
@@ -74,7 +76,8 @@ This approach enables complex, multi-step analyses that combine insights from di
 - **Modular Design**: Clean separation of concerns between agents, tools, and workflow
 
 ## Future Enhancements
-
+- Specialized AI for Guidance Analysis and Narrative Generation (ongoing)
+- Add guardrails for ethical and responsible AI use (e.g., bias mitigation, data privacy, content moderation) (ongoing)
 - Integration with financial data APIs for direct access to company filings
 - Expanded agent capabilities for technical analysis and competitive intelligence
 - Interactive visualization of financial metrics and business insights
@@ -99,13 +102,31 @@ cd analyst_robot
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install dependencies using uv
+# ใช้ [uv](https://github.com/astral-sh/uv) เป็น Python package manager หลัก:
+
 uv pip install -r requirements.txt
 
-# Set up environment variables
-export OPENAI_API_KEY="your_openai_api_key"
-export SERPER_API_KEY="your_serper_api_key"
+# ติดตั้ง nemoguardrails
+uv pip install nemoguardrails
 ```
+
+### การใช้งาน Nemo Guardrails
+
+โปรเจคนี้รองรับการใช้ [Nemo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) เพื่อควบคุมและ validate output ของ LLM agent
+
+- ตัวอย่าง config: `guardrails.rail`
+- ตัวอย่างการ integrate ในโค้ด Python:
+
+```python
+from nemoguardrails import LLMRails, RailsConfig
+
+config = RailsConfig.from_path("guardrails.rail")
+rails = LLMRails(config)
+result = rails.generate("สรุปเนื้อหานี้ให้หน่อย: ...")
+print(result)
+```
+
+อ่านรายละเอียดเพิ่มเติมใน [guardrails.rail](./guardrails.rail)
 
 ### Usage
 
