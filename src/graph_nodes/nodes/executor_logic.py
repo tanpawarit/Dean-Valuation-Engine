@@ -2,7 +2,9 @@
 from typing import List, Optional, Literal, Any
 from src.agents.registry import AGENT_REGISTRY
 from src.graph_nodes.graph_state import PlanExecuteState
-from src.utils import logger
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def executor_node(state: PlanExecuteState) -> dict[str, Any]:  
     logger.info(f"--- EXECUTOR ---")

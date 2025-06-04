@@ -1,6 +1,8 @@
 import os
 import yaml
-from src.utils import logger
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 from typing import Any
 
 _APP_CONFIG = None 

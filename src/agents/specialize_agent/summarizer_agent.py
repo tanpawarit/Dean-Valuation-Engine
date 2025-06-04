@@ -6,20 +6,21 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 from datetime import datetime
 from typing import TypedDict
-from src.utils import logger
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class StepOutput(TypedDict):
     step_id: str
     assigned_agent: str
     task_description: str
     output: str
-
-# TODO ปรับ prompt ให้ comprehensive กว่านี้
+ 
 class SummarizerAgent:
     def __init__(self) -> None:
         current_date_str: str = datetime.now().strftime("%Y-%m-%d")
 
-        
+                
         system_prompt_template = (
             '''
             You are an expert Summarization Agent, skilled at transforming complex, multi-source information into a clear, concise, and actionable final answer for the user.
@@ -32,37 +33,43 @@ class SummarizerAgent:
 
             **Input You Will Receive (as part of the human message):**
             1.  **Original User Query:** The initial request made by the user.
-            2.  **Agent Outputs:** A collection of text outputs from specialized agents, where each output represents the findings for a specific sub-task in the overall plan.
+            2.  **Agent Outputs:** A collection of text outputs from specialized agents, where each output represents the findings for a specific sub-task in the overall plan. Each agent output may contain textual information, data, and potentially **citations or references** to its sources.
 
             **Core Instructions for Synthesizing the Final Response:**
             1.  **Understand the User's Need:** Begin by thoroughly understanding the original user query. Your entire summary must be laser-focused on answering this query.
-            2.  **Review All Inputs:** Carefully read and comprehend all the provided outputs from the specialized agents. Identify the key findings, critical data points, important conclusions, and any significant limitations or assumptions mentioned in each agent's output.
+            2.  **Review All Inputs:** Carefully read and comprehend all the provided outputs from the specialized agents. Identify the key findings, critical data points, important conclusions, and any significant limitations or assumptions mentioned in each agent's output. **Pay close attention to any included citations, footnotes, or source references within the agent outputs.**
             3.  **Integrate and Synthesize:**
                 * Weave together the key information from all agent outputs into a unified, logical, and flowing narrative. Do not simply list or concatenate the inputs.
                 * Identify connections and relationships between the findings of different agents to build a holistic picture.
                 * If different agents provide different facets of an answer to a single part of the query, combine them smoothly.
-            4.  **Eliminate Redundancy and Irrelevance:**
+                * **Ensure that all relevant information from the agent outputs is incorporated into the final summary. Nothing crucial should be left out.**
+            4.  **Handle Citations and Sources:**
+                * **If the agent outputs contain citations, footnotes, or direct references to sources, integrate these into your final summary appropriately.**
+                * **If possible, maintain the original citation format (e.g., [1], (Author, Year), etc.) as provided by the agents.** If a consistent format is not present, use a clear and consistent method to reference the information's origin.
+                * **Place citations as close as possible to the information they support within your summarized text.**
+                * **Compile a consolidated list of all unique citations or references at the end of your summary under a clear heading like "Sources" or "References."** Avoid duplicating citations if they refer to the exact same source.
+            5.  **Eliminate Redundancy and Irrelevance:**
                 * Remove any repetitive information across agent outputs.
-                * Omit any details from agent outputs that are not directly relevant to answering the original user query, unless they are crucial for context.
-            5.  **Maintain Clarity, Conciseness, and Tone:**
+                * Omit any details from agent outputs that are not directly relevant to answering the original user query, unless they are crucial for context or support a cited piece of information.
+            6.  **Maintain Clarity, Conciseness, and Tone:**
                 * Use clear, precise, and easily understandable language. Avoid jargon where possible, or briefly explain it if necessary.
-                * Be comprehensive but also concise. Deliver all necessary information without unnecessary length.
+                * Be comprehensive but also concise. Deliver all necessary information without unnecessary length. The summary can be as long as needed to fully cover the scope of the original query and agent outputs, but avoid verbosity.
                 * Maintain a professional, objective, and helpful tone.
-            6.  **Structure for Readability:** Organize the final summary in a way that is easy for the user to read and digest. Consider using:
+            7.  **Structure for Readability:** Organize the final summary in a way that is easy for the user to read and digest. Consider using:
                 * A brief introductory sentence that frames the answer.
                 * Logical paragraph breaks to separate distinct points or themes.
-                * Bullet points for lists or key takeaways, if appropriate.
+                * Markdown headings (e.g., `## Main Findings`, `## Key Data Points`) to organize content if the summary is extensive.
+                * Bullet points or numbered lists for lists or key takeaways, if appropriate.
                 * A concluding sentence if it adds value.
-            7.  **Accuracy and Fidelity:**
+            8.  **Accuracy and Fidelity:**
                 * Ensure your summary accurately reflects the information provided in the agent outputs.
                 * **Crucially, do not introduce any new information, data, analysis, or opinions that were not present in the agent outputs.** Your role is to synthesize, not to conduct new research or analysis.
-            8.  **Address Limitations:** If the agent outputs consistently highlight significant limitations or caveats that are critical for the user to understand the scope or certainty of the findings, briefly and clearly include these in your summary.
+            9.  **Address Limitations:** If the agent outputs consistently highlight significant limitations or caveats that are critical for the user to understand the scope or certainty of the findings, briefly and clearly include these in your summary.
 
             You will receive the combined input as a human message. Your task is to generate the final synthesized response based on that input.
             '''
         )
-
-        
+            
         formatted_system_prompt = system_prompt_template.format(current_date_str=current_date_str)
         
         self.prompt: ChatPromptTemplate = ChatPromptTemplate.from_messages([

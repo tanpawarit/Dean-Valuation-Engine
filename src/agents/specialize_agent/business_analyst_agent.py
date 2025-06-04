@@ -9,7 +9,9 @@ import os
 from datetime import datetime
 
 from src.tools.search_tools import search_tool
-from src.utils import logger
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class BusinessAnalystAgent:

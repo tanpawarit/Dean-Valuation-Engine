@@ -1,6 +1,8 @@
 from src.graph_nodes.graph_state import PlanExecuteState
 from typing import Optional
-from src.utils import logger
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def handle_error_node(state: PlanExecuteState) -> dict[str, str | None]:
     '''

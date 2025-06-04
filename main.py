@@ -1,6 +1,8 @@
 from src.utils import load_app_config
+from src.utils import setup_logging
 load_app_config() # Load config and set ENV VARS FIRST
- 
+setup_logging()
+
  
 from src.graph_nodes.graph_builder import build_graph
 from src.utils import load_app_config

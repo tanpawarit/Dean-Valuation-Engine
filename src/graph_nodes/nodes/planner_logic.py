@@ -1,6 +1,8 @@
 from src.graph_nodes.graph_state import PlanExecuteState
 from src.agents.registry import planner_agent
-from src.utils import logger
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def planner_node(state: PlanExecuteState) -> PlanExecuteState:
     logger.info("--- PLANNER ---")

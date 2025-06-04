@@ -1,5 +1,7 @@
 from src.graph_nodes.graph_state import PlanExecuteState
-from src.utils import logger
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def should_continue(state: PlanExecuteState) -> str:
     error_msg = state.get("error_message")

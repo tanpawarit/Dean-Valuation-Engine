@@ -2,7 +2,9 @@ from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from datetime import datetime
-from src.utils import logger
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 from src.agents.specialize_agent.constant import SPECIAIZE_AGENT_DESCRIPTIONS
 from typing import Any
 
