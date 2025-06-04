@@ -36,14 +36,16 @@ def scrape_webpages_tool(urls: List[str]) -> Dict[str, str]:
         docs = loader.load()
         
         if not docs:
-            return "No content could be extracted from the provided URLs"
+            return {"error": "No content could be extracted from the provided URLs"}
             
-        return "\n\n".join(
-            [
-                f'<Document name="{doc.metadata.get("title", "")}">\n{doc.page_content}\n</Document>'
-                for doc in docs
-            ]
-        )
+        return {
+            "content": "\n\n".join(
+                [
+                    f'<Document name="{doc.metadata.get("title", "")}">\n{doc.page_content}\n</Document>'
+                    for doc in docs
+                ]
+            )
+        }
     except RequestException as e:
         raise RequestException(f"Failed to fetch content: {str(e)}")
     except Exception as e:
