@@ -1,33 +1,36 @@
-## Market Size Analysis of JPMorgan Chase
+## Analysis of TAM, SAM, and SOM for JPMorgan Chase
 
-JPMorgan Chase is a universal bank offering a wide range of financial services, including consumer and community banking, corporate and investment banking, commercial banking, and asset and wealth management. This diverse portfolio allows the bank to mitigate risks associated with sector-specific downturns while capitalizing on various revenue streams such as interest income, fees, trading, and asset management.
+### Overview
+JPMorgan Chase is a leading global financial services firm with a diversified business model that includes consumer banking, corporate and investment banking, commercial banking, and asset and wealth management. This diversity provides resilience and opportunities for cross-selling, making it highly competitive in the financial sector.
 
-### Revenue Breakdown and Business Model
+### Total Addressable Market (TAM)
+- **Global Banking TAM (2025):** The projected net interest income for the global banking sector is approximately $8.94 trillion [Statista, 2025].
+- **Investment Banking TAM:** The global investment banking revenue pool is estimated at $250–300 billion annually [Statista, McKinsey].
+- **Asset & Wealth Management TAM:** The global assets under management (AUM) exceed $120 trillion, with fee pools of $300–400 billion [BCG, 2024].
 
-- **Consumer & Community Banking:** Accounts for approximately 42% of total revenue, providing stable and recurring income.
-- **Corporate & Investment Banking:** Contributes about 34% of total revenue, characterized by higher margins but greater volatility.
-- **Commercial Banking:** Makes up around 10% of total revenue.
-- **Asset & Wealth Management:** Represents about 14% of total revenue, offering fee-based, less cyclical income.
+### Serviceable Available Market (SAM)
+- **Geographic Focus:** JPMorgan Chase's SAM is primarily concentrated in the U.S., where it holds a significant market share, and in major international markets such as EMEA and Asia-Pacific.
+- **Product Focus:** The SAM includes all major banking, investment, and asset management services where JPMorgan has a regulatory and operational presence.
+- **Estimated SAM:** For U.S. banking, the net interest income is approximately $1.8 trillion [Statista, 2025]. For global investment banking, JPMorgan's accessible market is the top 10–15 global economies.
 
-The bank's revenue is a mix of recurring streams (e.g., net interest income, asset management fees) and cyclical streams (e.g., trading, investment banking fees), which helps stabilize margins and cushion against economic shocks.
+### Serviceable Obtainable Market (SOM)
+- **U.S. Banking:** JPMorgan Chase holds 19.5% of U.S. bank assets and is the largest by deposits [WalletHub, 2025].
+- **Global Investment Banking:** It leads with an 8% global market share [Statista, 2025].
+- **Asset Management:** As a top 5 global asset manager, it manages approximately $3.5 trillion in AUM, representing about 3% of global AUM.
 
-### Market Sizing
-
-- **Total Addressable Market (TAM):** The global banking market is valued at approximately $29.8 trillion in 2025, encompassing all banking products and services worldwide [StartUs Insights](https://www.startus-insights.com/innovators-guide/banking-industry-report/).
-- **Serviceable Available Market (SAM):** JPMorgan Chase's SAM includes the U.S. and select international markets, focusing on retail, commercial, investment banking, and asset management. The U.S. banking market alone is estimated at around $5 trillion.
-- **Serviceable Obtainable Market (SOM):** Globally, JPMorgan Chase holds about 8% market share in investment banking [Statista](https://www.statista.com/statistics/271008/global-market-share-of-investment-banks/), and its total revenue represents approximately 0.6% of the global banking TAM. In the U.S., the bank often leads in deposits, lending, and card issuance.
-
-### Growth and Expansion Opportunities
-
-JPMorgan Chase can expand by increasing its digital banking footprint internationally, enhancing its wealth management services, and targeting underserved segments such as small and medium enterprises (SMEs) and emerging markets. Strategic acquisitions or partnerships in fintech and cross-border payments could further accelerate growth. However, regulatory barriers and local competition pose challenges that require strategic navigation.
+### Expansion Opportunities
+JPMorgan Chase's high SOM in core U.S. and global markets suggests that future growth will likely come from:
+- **International Expansion:** Particularly in the Asia-Pacific region, where there is significant growth in private credit and wealth management [Reuters, 2025].
+- **Digital Banking/Payments:** Through fintech partnerships, embedded finance, and digital wallets.
+- **Sustainable Finance:** Including green bonds, ESG investing, and advisory services.
 
 ### Conclusion
-
-JPMorgan Chase's robust and diversified business model positions it well within the global banking landscape. Its balanced revenue streams and strategic growth initiatives provide resilience and potential for expansion, making it a core holding for both growth and income-focused investors.
+JPMorgan Chase's diversified business model and significant market share position it well for continued growth. Its strategic focus on international expansion, digital transformation, and sustainable finance will be crucial for capturing additional market opportunities. Continued investment in technology, local partnerships, and regulatory compliance will be essential to leverage these opportunities effectively.
 
 ### Sources
-
-- [JPMorgan Chase 1Q25 Earnings Presentation (PDF)](https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/investor-relations/documents/quarterly-earnings/2025/1st-quarter/dea6f825-073f-4b0f-9811-2aaefc5eec94.pdf)
-- [CompaniesMarketCap JPM Revenue 2025](https://companiesmarketcap.com/jp-morgan-chase/revenue/)
-- [Statista: Global Market Share of Investment Banks 2025](https://www.statista.com/statistics/271008/global-market-share-of-investment-banks/)
-- [StartUs Insights: Global Banking Market 2025](https://www.startus-insights.com/innovators-guide/banking-industry-report/)
+- [JPMorgan Chase 2024 Annual Report (PDF)](https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/investor-relations/documents/annualreport-2024.pdf)
+- [Statista: Global Banking Market Forecast 2025](https://www.statista.com/outlook/fmo/banking/worldwide)
+- [WalletHub: U.S. Bank Market Share 2025](https://wallethub.com/edu/bank-market-share-by-deposits/25587)
+- [Statista: Global Investment Banking Market Share 2025](https://www.statista.com/statistics/271008/global-market-share-of-investment-banks/)
+- [JPMorgan Chase 2025 Investor Day Presentation (PDF)](https://www.jpmorganchase.com/content/dam/jpmc/jpmorgan-chase-and-co/investor-relations/documents/events/2025/jpmc-2025-investor-day/full-presentation.pdf)
+- [McKinsey: Global Banking Annual Review 2024](https://www.mckinsey.com/industries/financial-services/our-insights/global-banking-annual-review)

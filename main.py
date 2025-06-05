@@ -1,6 +1,7 @@
 from src.utils import load_app_config
 from src.utils import setup_logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+from src.utils.graph_logger import generate_run_id, log_graph_start, log_node_execution, log_graph_end
 from langgraph.graph import Graph
 load_app_config() # Load config and set ENV VARS FIRST
 setup_logging()
@@ -11,19 +12,22 @@ from langgraph.graph import END
 # --- Construct the Graph ---
 app = build_graph()
 
-#TODO debug ว่า graph state ทำงานถูกต้องหรือไม่
+#TODO debug ว่า graph state ทำงานถูกต้องหรือไม่ (สร้างไฟล log)
 #TODO ทำไฟล main ใหม่ เเละทำ guardrail node
 
 # from IPython.display import Image, display
 # display(Image(app.get_graph(xray=True).draw_mermaid_png()))
 
 
-def run_graph_stream_debug(app_instance: Any, initial_inputs: Dict[str, str]) -> Dict[str, Any]:
-    print(f"\n--- Running Graph in DEBUG STREAM MODE for Query: '{initial_inputs['original_query']}' ---")
-    final_state: Dict[str, Any] = {} 
+def run_graph_stream_debug(app_instance: Any, initial_inputs: Dict[str, str], run_id: str) -> Dict[str, Any]:
+    print(f"\n--- Running Graph in DEBUG STREAM MODE for Query: '{initial_inputs['original_query']}' (Run ID: {run_id}) ---")
+    final_state: Dict[str, Any] = {}
+    previous_state: Dict[str, Any] = initial_inputs.copy()
+
     for s_item in app_instance.stream(initial_inputs, {"recursion_limit": 15}):
-        print(f"\n--- Current State Snapshot ---")
-        for key, value in s_item.items():
+        current_state = s_item
+        print(f"\n--- Current State Snapshot (Run ID: {run_id}) ---")
+        for key, value in current_state.items():
             print(f"Graph Node: {key}")
             if value and isinstance(value, dict): 
                 if 'executed_steps' in value and value['executed_steps']:
@@ -43,12 +47,25 @@ def run_graph_stream_debug(app_instance: Any, initial_inputs: Dict[str, str]) ->
             elif value:
                  print(f"  Value (snapshot, non-dict): {str(value)[:200]}...")
             else:
-                print(f"  Value (snapshot): {value}") 
+                print(f"  Value (snapshot): {value}")
+        
+        # Log node executions for this step
+        for node_name, node_value in current_state.items():
+            if node_name not in previous_state or previous_state.get(node_name) != node_value:
+                log_node_execution(
+                    run_id=run_id,
+                    node_name=node_name,
+                    state_before=previous_state,
+                    state_after=current_state,
+                    output=node_value
+                )
+        
+        previous_state = current_state.copy()
         final_state = s_item 
     return final_state
 
-def run_graph_production(app_instance: Any, initial_inputs: Dict[str, str]) -> Dict[str, Any]:
-    print(f"\n--- Running Graph in PRODUCTION MODE for Query: '{initial_inputs['original_query']}' ---")
+def run_graph_production(app_instance: Any, initial_inputs: Dict[str, str], run_id: str) -> Dict[str, Any]: # Added run_id
+    print(f"\n--- Running Graph in PRODUCTION MODE for Query: '{initial_inputs['original_query']}' (Run ID: {run_id}) ---")
     final_state = app_instance.invoke(initial_inputs, {"recursion_limit": 15})
     
     print(f"\n--- Production Mode Final State (Concise) ---")
@@ -117,23 +134,63 @@ def run_graph_production(app_instance: Any, initial_inputs: Dict[str, str]) -> D
     
     return final_state
 
-if __name__ == "__main__": 
-    # --- Configuration --- 
-    # Set to True to use verbose streaming output for debugging, False for production (invoke) mode.
-    USE_DEBUG_STREAM_MODE = True 
-    initial_query = "Analyze the TAM SAM SOM of JPMorgan Chase" # Default query
+if __name__ == "__main__":
+    # --- Configuration ---
+    USE_DEBUG_STREAM_MODE = True
+    initial_query = "Analyze the TAM SAM SOM of JPMorgan Chase"
 
     inputs: Dict[str, str] = {"original_query": initial_query}
-    s: Dict[str, Any] = {} # Initialize s, will hold the final state from either mode
+    s: Dict[str, Any] = {} # Initialize s, will hold the final state
+    graph_error_obj: Optional[Exception] = None
 
-    if USE_DEBUG_STREAM_MODE:
-        print("--- RUNNING IN DEBUG STREAM MODE ---")
-        s = run_graph_stream_debug(app, inputs)
-    else:
-        print("--- RUNNING IN PRODUCTION MODE ---")
-        s = run_graph_production(app, inputs) 
+    run_id = generate_run_id()
+    log_graph_start(run_id=run_id, initial_state=inputs)
 
-    print(f"\n--- Final State Details (from last streamed state 's') ---")
+    try:
+        if USE_DEBUG_STREAM_MODE:
+            print(f"--- RUNNING IN DEBUG STREAM MODE (Run ID: {run_id}) ---")
+            s = run_graph_stream_debug(app, inputs, run_id)
+        else:
+            print(f"--- RUNNING IN PRODUCTION MODE (Run ID: {run_id}) ---")
+            s = run_graph_production(app, inputs, run_id)
+    except Exception as e:
+        print(f"!!! Graph execution failed with error: {e} (Run ID: {run_id}) !!!")
+        graph_error_obj = e
+
+    # --- Determine Final Graph Output Payload (for report and logging) ---
+    final_graph_output_payload = None
+    if graph_error_obj:
+        final_graph_output_payload = f"Graph execution failed: {str(graph_error_obj)}"
+    elif s:
+        for node_name, node_output_state in s.items():
+            if isinstance(node_output_state, dict):
+                if "final_result" in node_output_state:
+                    final_graph_output_payload = node_output_state["final_result"]
+                    print(f"Identified 'final_result' from node '{node_name}' (Run ID: {run_id}).")
+                    break
+                elif "error_message" in node_output_state:
+                    final_graph_output_payload = f"Graph ended with an error from node '{node_name}': {node_output_state['error_message']}"
+                    print(f"Identified 'error_message' from node '{node_name}' (Run ID: {run_id}).")
+                    break
+            elif node_name == END and node_output_state is not None:
+                 final_graph_output_payload = node_output_state
+                 print(f"Identified output from END node (Run ID: {run_id}).")
+                 break
+        if final_graph_output_payload is None: # Fallback if no specific result/error found in nodes
+            print(f"Could not determine a specific 'final_result' or 'error_message' from the graph's final state. Using full state as fallback (Run ID: {run_id}).")
+            final_graph_output_payload = s
+    else: # s is empty and no graph_error_obj (e.g. if graph was interrupted before s was populated)
+        final_graph_output_payload = f"Graph did not produce a final state 's' and no explicit error was caught externally (Run ID: {run_id})."
+
+    log_graph_end(
+        run_id=run_id,
+        final_state=s if s else {},
+        result=final_graph_output_payload,
+        error=str(graph_error_obj) if graph_error_obj else None
+    )
+
+    # --- Print Final State Details (from 's') ---
+    print(f"\n--- Final State Details (from last graph state 's', Run ID: {run_id}) ---")
     if s:
         for key, value in s.items(): 
             print(f"Graph Node (final state): {key}")
@@ -157,45 +214,31 @@ if __name__ == "__main__":
             else:
                 print(f"  Final State Value: {value}")
     else:
-        print("Graph stream did not produce a final state 's'.")
+        print(f"Graph did not produce a final state 's' (Run ID: {run_id}).")
 
-    final_graph_output_payload = None
-    if s:
-        for node_name, node_output_state in s.items():
-            if isinstance(node_output_state, dict):
-                if "final_result" in node_output_state: 
-                    final_graph_output_payload = node_output_state["final_result"]
-                    print(f"Identified 'final_result' from node '{node_name}'.")
-                    break
-                elif "error_message" in node_output_state: 
-                    final_graph_output_payload = f"Graph ended with an error from node '{node_name}': {node_output_state['error_message']}"
-                    print(f"Identified 'error_message' from node '{node_name}'.")
-                    break
-            elif node_name == END and node_output_state is not None: 
-                 final_graph_output_payload = node_output_state
-                 print(f"Identified output from END node.")
-                 break
+    # --- Print and Save Report --- 
+    print(f"\n--- GRAPH'S FINAL OUTPUT PAYLOAD (Run ID: {run_id}) ---")
+    # final_graph_output_payload is already determined above
 
-        if final_graph_output_payload is None:
-            print("Could not determine a specific 'final_result' or 'error_message' from the last graph state's nodes. Using the full last state 's' as fallback.")
-            final_graph_output_payload = s 
-            
-    print("\n--- GRAPH'S FINAL OUTPUT PAYLOAD ---")
-    # --- Save the 'final_result' content to a Markdown file ---
     content_to_save_to_file = None
     if isinstance(final_graph_output_payload, dict):
-        content_to_save_to_file = final_graph_output_payload.get("final_result")
+        # If the payload is a dict, try to get 'final_result' for the report
+        # Otherwise, the report will contain the string representation of the dict
+        content_to_save_to_file = final_graph_output_payload.get("final_result", str(final_graph_output_payload))
+    elif isinstance(final_graph_output_payload, str):
+        content_to_save_to_file = final_graph_output_payload
+    else: # Other types, convert to string
+        content_to_save_to_file = str(final_graph_output_payload)
 
-    if isinstance(content_to_save_to_file, str) and content_to_save_to_file:
-        report_filename = "analysis_report.md" # Fixed filename
+    if content_to_save_to_file: # Ensure there's something to save
+        report_filename = "analysis_report.md"
         try:
             with open(report_filename, "w", encoding="utf-8") as f:
                 f.write(content_to_save_to_file)
-            print(f"\n--- Report successfully saved to {report_filename} ---")
+            print(f"\n--- Report successfully saved to {report_filename} (Run ID: {run_id}) ---")
         except IOError as e:
-            print(f"\n--- Error saving report to {report_filename}: {e} ---")
+            print(f"\n--- Error saving report to {report_filename}: {e} (Run ID: {run_id}) ---")
     else:
-        if final_graph_output_payload is not None and not (isinstance(final_graph_output_payload, dict) and final_graph_output_payload.get("final_result")):
-            print("\n--- 'final_result' not found or not a string in the output; report not saved. ---")
+        print(f"\n--- No content derived for saving report (Run ID: {run_id}). --- ")
     # --- End of save report ---
  
