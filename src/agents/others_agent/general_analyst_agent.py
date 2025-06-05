@@ -51,12 +51,16 @@ class GeneralAnalystAgent:
             max_iterations=5,
         )
 
-    def invoke(self, step_to_execute: str) -> str:
-        agent_response: dict = self.general_step_agent_executor.invoke({
-            "input": step_to_execute
-        })
-        return agent_response.get('output', f"General React Agent did not produce a final output for: {step_to_execute}")
+    def invoke(self, step_to_execute: str) -> dict[str, str]:
+        try:
+            agent_response: dict = self.general_step_agent_executor.invoke({
+                "input": step_to_execute
+            })
+            output_content: str = agent_response.get('output', f"General React Agent did not produce a final output for: {step_to_execute}")
+            return {"final_result": output_content}
+        except Exception as e: 
+            return {"error_message": f"Error in GeneralAnalystAgent for task '{step_to_execute}': {e}"}
 
-def general_analyst_agent(step_to_execute: str) -> str:
+def general_analyst_agent(step_to_execute: str) -> dict[str, str]:
     agent: GeneralAnalystAgent = GeneralAnalystAgent()
     return agent.invoke(step_to_execute)

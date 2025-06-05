@@ -117,15 +117,20 @@ class BusinessAnalystAgent:
             max_iterations=30,
         )
 
-    def invoke(self, task_detail: str) -> str:
+    def invoke(self, task_detail: str) -> dict[str, str]:
         try:
             response_dict: dict = self.business_analyst_executor.invoke({
                 "input": task_detail
             })
-            return response_dict.get('output', f"Business Analyst Agent did not produce a final output for: {task_detail}")
+            output = response_dict.get('output')
+            if output:
+                return {"final_result": output}
+            else:
+                logger.warning(f"Business Analyst Agent did not produce a final output for: {task_detail}")
+                return {"error_message": f"Business Analyst Agent did not produce a final output for: {task_detail}"}
         except Exception as e:
             logger.error(f"Error in Business Analyst Agent: {e}")
-            return f"Error executing Business Analyst Agent: {e}"
+            return {"error_message": f"Error executing Business Analyst Agent: {str(e)}"}
 
 # def business_analyst_agent(task_detail: str) -> str:
 #     agent: BusinessAnalystAgent = BusinessAnalystAgent()

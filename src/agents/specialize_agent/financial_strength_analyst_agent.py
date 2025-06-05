@@ -112,13 +112,18 @@ class FinancialStrengthAnalystAgent:
             max_iterations=30,
         )
 
-    def invoke(self, task_detail: str) -> str:
+    def invoke(self, task_detail: str) -> dict[str, str]:
         try:
             response_dict: dict = self.financial_strength_analyst_executor.invoke({
                 "input": task_detail
             })
-            return response_dict.get('output', f"Financial Strength Analyst Agent did not produce a final output for: {task_detail}")
+            output = response_dict.get('output')
+            if output:
+                return {"final_result": output}
+            else:
+                logger.warning(f"Financial Strength Analyst Agent did not produce a final output for: {task_detail}")
+                return {"error_message": f"Financial Strength Analyst Agent did not produce a final output for: {task_detail}"}
         except Exception as e:
             logger.error(f"Error in Financial Strength Analyst Agent: {e}")
-            return f"Error executing Financial Strength Analyst Agent: {e}"
+            return {"error_message": f"Error executing Financial Strength Analyst Agent: {str(e)}"}
  

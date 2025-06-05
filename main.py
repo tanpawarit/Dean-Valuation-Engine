@@ -1,35 +1,31 @@
 from src.utils import load_app_config
 from src.utils import setup_logging
-from nemoguardrails import LLMRails, RailsConfig
+from typing import Any, Dict
+from langgraph.graph import Graph
 load_app_config() # Load config and set ENV VARS FIRST
 setup_logging()
 
 from src.graph_nodes.graph_builder import build_graph
-# from src.utils import load_app_config # Removed duplicate import
 from langgraph.graph import END
  
 # --- Construct the Graph ---
 app = build_graph()
 
-# --- Initialize NeMo Guardrails ---
-guardrails_config = RailsConfig.from_path("src/guardrails/")
-rails = LLMRails(config=guardrails_config)
+#TODO debug ว่า graph state ทำงานถูกต้องหรือไม่
+#TODO ทำไฟล main ใหม่ เเละทำ guardrail node
 
 # from IPython.display import Image, display
 # display(Image(app.get_graph(xray=True).draw_mermaid_png()))
 
-if __name__ == "__main__": 
-    initial_query = "What is the current D/E ratio for Microsoft?" # Test simpler query
-    inputs: dict[str, str] = {"original_query": initial_query}
-    
-    print(f"\n--- Running Graph for Query: '{initial_query}' ---")
-    
-    s = {} # To store the last state from the stream
-    for s_item in app.stream(inputs, {"recursion_limit": 15}):
+
+def run_graph_stream_debug(app_instance: Any, initial_inputs: Dict[str, str]) -> Dict[str, Any]:
+    print(f"\n--- Running Graph in DEBUG STREAM MODE for Query: '{initial_inputs['original_query']}' ---")
+    final_state: Dict[str, Any] = {} 
+    for s_item in app_instance.stream(initial_inputs, {"recursion_limit": 15}):
         print(f"\n--- Current State Snapshot ---")
         for key, value in s_item.items():
             print(f"Graph Node: {key}")
-            if value and isinstance(value, dict): # Ensure value is a dict before accessing keys
+            if value and isinstance(value, dict): 
                 if 'executed_steps' in value and value['executed_steps']:
                     summary_executed = []
                     for step in value['executed_steps']:
@@ -48,7 +44,94 @@ if __name__ == "__main__":
                  print(f"  Value (snapshot, non-dict): {str(value)[:200]}...")
             else:
                 print(f"  Value (snapshot): {value}") 
-        s = s_item 
+        final_state = s_item 
+    return final_state
+
+def run_graph_production(app_instance: Any, initial_inputs: Dict[str, str]) -> Dict[str, Any]:
+    print(f"\n--- Running Graph in PRODUCTION MODE for Query: '{initial_inputs['original_query']}' ---")
+    final_state = app_instance.invoke(initial_inputs, {"recursion_limit": 15})
+    
+    print(f"\n--- Production Mode Final State (Concise) ---")
+    if not final_state:
+        print("Graph invocation in production mode did not produce a final state.")
+        return final_state # Return early if no final_state
+
+    found_answer_node_name: str | None = None
+    found_answer_content: Any = None
+    found_output_node_name: str | None = None
+    found_output_content: Any = None
+
+    # First pass: prioritize finding final_answer from any node
+    for node_name, node_content in final_state.items():
+        if isinstance(node_content, dict):
+            if node_content.get("final_answer"): # Checks for key existence and truthy value
+                found_answer_node_name = node_name
+                found_answer_content = node_content["final_answer"]
+                break  # Found the best possible answer (final_answer), no need to look further in other nodes for this key
+
+    # Second pass (only if no final_answer was found): look for final_output from any node
+    if not found_answer_content:
+        for node_name, node_content in final_state.items():
+            if isinstance(node_content, dict):
+                if node_content.get("final_output"): # Checks for key existence and truthy value
+                    found_output_node_name = node_name
+                    found_output_content = node_content["final_output"]
+                    break # Found a final_output, take the first one encountered
+
+    primary_output_printed = False
+    if found_answer_content: # This implies found_answer_node_name is also set
+        print(f"Node '{found_answer_node_name}' -> Final Answer: {found_answer_content}")
+        primary_output_printed = True
+    elif found_output_content: # This implies found_output_node_name is also set
+        print(f"Node '{found_output_node_name}' -> Final Output (snippet): {str(found_output_content)[:200]}...")
+        primary_output_printed = True
+        
+    if not primary_output_printed:
+        # Fallback: provide more detailed diagnostic info if no primary output was found
+        print("Primary output (final_answer or final_output) not explicitly found in any node.")
+        
+        diagnostic_items = {}
+        for k, v_node_content in final_state.items():
+            if isinstance(v_node_content, dict):
+                # Check for common potentially relevant keys or summarize if it's a non-empty dict
+                if v_node_content.get("summary"):
+                     diagnostic_items[k] = f"summary: {str(v_node_content['summary'])[:150]}..."
+                elif v_node_content.get("result"):
+                     diagnostic_items[k] = f"result: {str(v_node_content['result'])[:150]}..."
+                elif v_node_content: # Any other non-empty dict
+                    diagnostic_items[k] = f"content (dict): {str(v_node_content)[:150]}..."
+            elif isinstance(v_node_content, str) and v_node_content: # Non-empty string
+                diagnostic_items[k] = f"content (str): {str(v_node_content)[:150]}..."
+            elif v_node_content: # Other non-empty, non-dict, non-str types
+                diagnostic_items[k] = f"content ({type(v_node_content).__name__}): {str(v_node_content)[:150]}..."
+
+        if diagnostic_items:
+            print("Relevant final state items for diagnostics:")
+            for node, item_summary in diagnostic_items.items():
+                print(f"  Node '{node}': {item_summary}")
+        else:
+            # If no specific items found, just list the keys of the final_state
+            print(f"No specific relevant items found for diagnostics. Full state keys: {list(final_state.keys())}")
+            # Optionally, for very thorough debugging, uncomment to print a snippet of the full state:
+            # print(f"Full final_state (first 500 chars): {str(final_state)[:500]}...")
+    
+    return final_state
+
+if __name__ == "__main__": 
+    # --- Configuration --- 
+    # Set to True to use verbose streaming output for debugging, False for production (invoke) mode.
+    USE_DEBUG_STREAM_MODE = True 
+    initial_query = "Analyze the TAM SAM SOM of JPMorgan Chase" # Default query
+
+    inputs: Dict[str, str] = {"original_query": initial_query}
+    s: Dict[str, Any] = {} # Initialize s, will hold the final state from either mode
+
+    if USE_DEBUG_STREAM_MODE:
+        print("--- RUNNING IN DEBUG STREAM MODE ---")
+        s = run_graph_stream_debug(app, inputs)
+    else:
+        print("--- RUNNING IN PRODUCTION MODE ---")
+        s = run_graph_production(app, inputs) 
 
     print(f"\n--- Final State Details (from last streamed state 's') ---")
     if s:
@@ -76,53 +159,6 @@ if __name__ == "__main__":
     else:
         print("Graph stream did not produce a final state 's'.")
 
-    print(f"\n--- Attempting to Summarize Final Graph Output with NeMo Guardrails ---")
-    text_to_summarize = None
-    if s:
-        for node_name, node_state in s.items():
-            if isinstance(node_state, dict):
-                if "final_output" in node_state and isinstance(node_state["final_output"], str) and node_state["final_output"]:
-                    text_to_summarize = node_state["final_output"]
-                    print(f"Using 'final_output' from node '{node_name}' for summarization.")
-                    break
-                elif "final_answer" in node_state and isinstance(node_state["final_answer"], str) and node_state["final_answer"]:
-                    text_to_summarize = node_state["final_answer"]
-                    print(f"Using 'final_answer' from node '{node_name}' for summarization.")
-                    break
-        
-        if not text_to_summarize: 
-            for node_name, node_state in s.items():
-                if isinstance(node_state, dict):
-                    for _key_in_node, val_in_node in node_state.items():
-                        if isinstance(val_in_node, str) and len(val_in_node) > 50: 
-                            text_to_summarize = val_in_node
-                            print(f"Using content from node '{node_name}', key '{_key_in_node}' as fallback for summarization.")
-                            break
-                if text_to_summarize:
-                    break
-        
-        if not text_to_summarize: 
-            print("Could not find a specific text field in the last state. Summarizing string representation of the entire last state 's'.")
-            text_to_summarize = str(s)
-    else:
-        print("No final state 's' from graph stream to use for summarization.")
-
-    if text_to_summarize:
-        print_snippet = text_to_summarize[:1000] + ("..." if len(text_to_summarize) > 1000 else "")
-        print(f"\nContent to be summarized (snippet):\n---\n{print_snippet}\n---")
-        try:
-            guardrail_result = rails.generate(prompt=text_to_summarize) 
-            print("\n--- Guardrails Summary Result ---")
-            if isinstance(guardrail_result, str): 
-                print(guardrail_result)
-            else: 
-                print("Guardrails did not return the expected string format.")
-                print(f"Raw guardrails output: {guardrail_result}")
-        except Exception as e:
-            print(f"Error during NeMo Guardrails summarization: {e}")
-    else:
-        print("No text found or generated to summarize.")
-
     final_graph_output_payload = None
     if s:
         for node_name, node_output_state in s.items():
@@ -145,7 +181,21 @@ if __name__ == "__main__":
             final_graph_output_payload = s 
             
     print("\n--- GRAPH'S FINAL OUTPUT PAYLOAD ---")
-    if final_graph_output_payload is not None:
-        print(final_graph_output_payload)
+    # --- Save the 'final_result' content to a Markdown file ---
+    content_to_save_to_file = None
+    if isinstance(final_graph_output_payload, dict):
+        content_to_save_to_file = final_graph_output_payload.get("final_result")
+
+    if isinstance(content_to_save_to_file, str) and content_to_save_to_file:
+        report_filename = "analysis_report.md" # Fixed filename
+        try:
+            with open(report_filename, "w", encoding="utf-8") as f:
+                f.write(content_to_save_to_file)
+            print(f"\n--- Report successfully saved to {report_filename} ---")
+        except IOError as e:
+            print(f"\n--- Error saving report to {report_filename}: {e} ---")
     else:
-        print("No final output payload could be determined from the graph execution.")
+        if final_graph_output_payload is not None and not (isinstance(final_graph_output_payload, dict) and final_graph_output_payload.get("final_result")):
+            print("\n--- 'final_result' not found or not a string in the output; report not saved. ---")
+    # --- End of save report ---
+ 
