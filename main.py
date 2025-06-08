@@ -1,7 +1,7 @@
 from src.utils import load_app_config
 from src.utils import setup_logging
 from typing import Any, Dict, Optional
-from src.utils.graph_logger import generate_run_id, log_graph_start, log_node_execution, log_graph_end
+from src.utils.graph_logger import generate_run_id, log_graph_start, log_node_execution, log_graph_end, LOG_FILE_PATH
 from langgraph.graph import Graph
 load_app_config() # Load config and set ENV VARS FIRST
 setup_logging()
@@ -101,13 +101,21 @@ def run_graph_production(app_instance: Any, initial_inputs: Dict[str, str], run_
 if __name__ == "__main__":
     # --- Configuration ---
     USE_DEBUG_STREAM_MODE = True 
-    # initial_query = "Analyze the TAM SAM SOM of JPMorgan Chase"
-    initial_query = "Analyze peer group of UBER"
+    initial_query = "Analyze the TAM SAM SOM of JPMorgan Chase"
+    # initial_query = "Analyze peer group of UBER"
     # initial_query = "Hi"
 
     inputs: Dict[str, str] = {"original_query": initial_query}
     s: Dict[str, Any] = {} # Initialize s, will hold the final state
     graph_error_obj: Optional[Exception] = None
+
+    # Clear the log file at the start of each run
+    if LOG_FILE_PATH.exists():
+        try:
+            LOG_FILE_PATH.unlink()
+            print(f"--- Cleared old log file: {LOG_FILE_PATH} ---")
+        except OSError as e:
+            print(f"--- Error clearing log file {LOG_FILE_PATH}: {e} ---")
 
     run_id = generate_run_id()
     log_graph_start(run_id=run_id, initial_state=inputs)
