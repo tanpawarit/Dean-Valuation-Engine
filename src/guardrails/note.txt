@@ -12,3 +12,8 @@ OWASP Top 10 LLM ปี 2025 list
 8. Vector and Embedding Weakness - LLM อาจถูกโจมตีได้จากข้อมูลที่มันไปทำการค้นหามา หรือถูกส่งผ่านเข้าไปใน input เช่น ผสมคำสั่งให้มันทำอะไรแปลก ๆ เข้าไปใน PDF แล้วให้มันอ่าน
 9. Misinformation - LLM ให้ข้อมูลเท็จได้ เอาจริง ๆ ก็คือมันอาจจะทั้งหลอนและไม่ได้หลอนด้วยความที่มันถูกเทรนด้วย data ที่เยอะมาก ๆ ก็เลยทำให้มีโอกาสที่มันจะให้ข้อมูลผิด ๆ ออกมาได้
 10. Unbounded Consumption - การที่ attacker โจมตีด้วยการให้ LLM consume resource หนัก ๆ เช่น ให้ tool ที่บอทใช้ return ตัวอักษรที่ไม่มีความหมายออกมายาวมาก ๆ ซึ่งมันก็จะเข้าไปเป็นส่วนหนึ่งของ input token ที่ไม่ได้ช่วยให้บอททำงานได้ แถมยังผลาญเงินเราด้วย
+
+OWASP Guardrails We have
+- Prompt Injection Guardrail (user_intent_check, refuse_non_analytical_requests)
+- Sensitive Information Guardrail (sensitive_data_input_check, sensitive_data_output_check)
+- Improper Output Guardrails (output_length_check, detailed_summary_check)

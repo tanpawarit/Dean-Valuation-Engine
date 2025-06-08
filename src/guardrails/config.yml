@@ -6,41 +6,29 @@ models:
 rails:
   input:
     flows:
-      - mask sensitive data on input 
+      - user_intent_check
+      - refuse_non_analytical_requests
+      - sensitive_data_input_check
 
   output:
     flows:
-      - self check facts         
-      - self check hallucination 
-
-config:
-  sensitive_data_detection:
-    input:
-      entities:
-        - PERSON       
-        - EMAIL_ADDRESS 
+      - sensitive_data_output_check
+      - output_length_check
+      - detailed_summary_check
 
 prompts:
-  - task: output_parser_check 
-    content: |
-      You are an expert analyst.
-      Your task is to process the user's request.
-      You MUST only return a JSON object with a single key 'summary'.
-      The value of the 'summary' key should be a concise summary of the input document or text provided by the user.
-      The summary must not be empty.
-      The summary must be at most 500 characters long.
-      Do not include any other text, explanations, or formatting outside of this JSON object.
-
-  - task: self_check_facts  
+  - task: self_check_summary_quality
     output_parser: yes_no
     content: |
-      Your task is to check if the last statement made by the bot is factually correct.
-      The last statement is: "{{ last_bot_utterance }}"
-      Is the statement factually correct?
-      Answer Yes or No.
-
-  - task: self_check_hallucination  
-    content: |
-      Is the last bot utterance making up information or hallucinating?
-      The last bot utterance is: "{{ last_bot_utterance }}"
-      Answer Yes or No.
+      You are an impartial judge evaluating the quality of a summary.
+      The user asked for a summary of a document or text.
+      The bot provided the following summary: "{{ last_bot_utterance }}"
+      
+      Consider the following criteria:
+      1. Key Points: Does the summary cover the most important points of the original content?
+      2. Sufficiency: Is the summary detailed enough to be useful, or is it too vague or superficial?
+      3. Conciseness: Is the summary to the point, without unnecessary jargon or repetition (while still being sufficiently detailed)?
+      4. Relevance: Is the summary relevant to a typical request for analyzing financial or business data?
+      
+      Based on these criteria, would you say this summary is of good quality and provides sufficient detail?
+      Answer with only "yes" or "no".
