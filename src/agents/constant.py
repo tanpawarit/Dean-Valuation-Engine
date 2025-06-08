@@ -18,6 +18,12 @@ SPECIAIZE_AGENT_DESCRIPTIONS: dict[str, str] = {
         "* Tools: Search.\n"
         "* Use when: Understanding a company's core operations, revenue streams, market position, and growth potential is required."
     ),
+    "GrowthAnalystAgent": (
+        "* Expertise: Analyzes growth metrics, including Revenue CAGR, EPS Growth, and FCF Growth. "
+        "Focuses on evaluating the quality of earnings and the company's reinvestment strategies.\n"
+        "* Tools: Search.\n"
+        "* Use when: Detailed analysis of a company's growth potential is required."
+    ),
     "SummarizerAgent": (
         "* Expertise: Combines and synthesizes results from specialized agents to create a coherent and comprehensive final answer "
         "for the user, based on the original user query and the collected agent outputs.\n"
