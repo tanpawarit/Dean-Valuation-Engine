@@ -85,7 +85,7 @@ class BusinessAnalystAgent:
             - Maintain an objective, scholarly tone  
             - Avoid oversimplification of topics  
 
-            **Use only the most up-to-date sources as of {current_date}:** **Output only the 4 sections—no intros, no conclusions**
+            **Use only the most up-to-date sources as of {current_date}:** **Output only the 5 sections—no intros, no conclusions**
             '''
         )
 

@@ -70,14 +70,10 @@ def executor_node(state: PlanExecuteState) -> dict[str, Any]:
                 # If this is the GeneralAnalystAgent and it's the only step in the plan,
                 # set its output as the final result.
                 if agent_name == "GeneralAnalystAgent" and len(plan) == 1:
-                    if isinstance(raw_agent_output, str):
-                        new_final_result = raw_agent_output
-                        logger.info(f"GeneralAnalystAgent is the only step. Setting final_result: {str(new_final_result)[:200] if new_final_result is not None else 'None'}...")
-                    elif isinstance(raw_agent_output, dict) and "response" in raw_agent_output: # Assuming GeneralAnalyst might return a dict
-                        new_final_result = raw_agent_output["response"]
-                        logger.info(f"GeneralAnalystAgent is the only step (from dict). Setting final_result: {str(new_final_result)[:200] if new_final_result is not None else 'None'}...")
-                    # Add more conditions here if GeneralAnalystAgent can return other types
-
+                    if isinstance(raw_agent_output, dict) and "final_result" in raw_agent_output: # GeneralAnalystAgent returns {'final_result': ...}
+                        new_final_result = raw_agent_output["final_result"]
+                        logger.info(f"GeneralAnalystAgent is the only step. Setting final_result (from dict key 'final_result'): {str(new_final_result)[:200] if new_final_result is not None else 'None'}...")
+                   
         except Exception as e:
             execution_error_detail: str = f"Error executing step with {agent_name}: {e}"
             logger.error(execution_error_detail)

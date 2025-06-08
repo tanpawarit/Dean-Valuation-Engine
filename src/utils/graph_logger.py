@@ -3,6 +3,9 @@ import datetime
 import uuid
 from pathlib import Path
 from typing import Dict, Any, Optional
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 # Define the log file path at the project root
 LOG_FILE_PATH = Path("graph_execution_details.log")
@@ -20,8 +23,8 @@ def _write_log(log_entry: Dict[str, Any]) -> None:
             f.write(json.dumps(log_entry, indent=2, ensure_ascii=False, default=str) + "\n")
     except Exception as e:
         # Fallback to print if logging fails
-        print(f"Error writing to log file {LOG_FILE_PATH}: {e}")
-        print(f"Log entry was: {log_entry}")
+        logger.error(f"Error writing to log file {LOG_FILE_PATH}: {e}")
+        logger.error(f"Log entry was: {log_entry}")
 
 def log_graph_start(run_id: str, initial_state: Dict[str, Any]) -> None:
     """Logs the start of a graph execution."""

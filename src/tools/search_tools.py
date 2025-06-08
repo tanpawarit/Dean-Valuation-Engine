@@ -2,6 +2,9 @@ import os
 import requests
 from typing import Optional, Any
 from langchain_core.tools import tool
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def extract_search_results(search_response: dict[str, Any]) -> list[dict[str, Any]]:
     """
@@ -55,16 +58,27 @@ def search_tool(query: str, api_key: Optional[str] = None) -> list[dict[str, Any
         >>> print(results[0]["title"])
         "OpenAI releases new GPT model"
     """
-    # Get API key from parameter or environment variable
-    api_key = api_key or os.getenv('SERPER_API_KEY')
-    if not api_key:
+    # Determine the effective API key
+    env_api_key = os.getenv('SERPER_API_KEY')
+    effective_api_key = ""
+
+    if api_key and api_key != 'api_key': # Parameter provided and it's not the literal string 'api_key'
+        effective_api_key = api_key
+        logger.debug(f"Using API key from parameter: {'*' * (len(effective_api_key) - 4) + effective_api_key[-4:] if effective_api_key else 'EMPTY'}")
+    elif env_api_key:
+        effective_api_key = env_api_key
+        logger.debug(f"Using API key from SERPER_API_KEY environment variable: {'*' * (len(effective_api_key) - 4) + effective_api_key[-4:] if effective_api_key else 'EMPTY'}")
+    else:
+        logger.debug("No API key found from parameter or environment variable.")
+
+    if not effective_api_key:
         raise ValueError("Serper API key not provided and SERPER_API_KEY environment variable not set") 
     # Serper API endpoint
     url = "https://google.serper.dev/search"
     
     # Headers for the request
     headers: dict[str, str] = {
-        'X-API-KEY': api_key,
+        'X-API-KEY': effective_api_key,
         'Content-Type': 'application/json'
     }
     
@@ -85,6 +99,4 @@ def search_tool(query: str, api_key: Optional[str] = None) -> list[dict[str, Any
     except requests.RequestException as e:
         raise requests.RequestException(f"Failed to perform search with Serper API: {str(e)}")
 
-  
-
-#TODO เพิ่ม Tool data eg 59-2 or something
+   

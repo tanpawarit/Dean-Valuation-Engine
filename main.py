@@ -10,10 +10,7 @@ from src.graph_nodes.graph_builder import build_graph
 from langgraph.graph import END
  
 # --- Construct the Graph ---
-app = build_graph()
-
-#TODO debug ว่า graph state ทำงานถูกต้องหรือไม่ (สร้างไฟล log)
-#TODO ทำไฟล main ใหม่ เเละทำ guardrail node
+app = build_graph() 
 
 # from IPython.display import Image, display
 # display(Image(app.get_graph(xray=True).draw_mermaid_png()))
@@ -40,10 +37,7 @@ def run_graph_stream_debug(app_instance: Any, initial_inputs: Dict[str, str], ru
                             'output_snippet': str(step.get('output'))[:100] + "..." if step.get('output') else "N/A"
                         })
                     print(f"  Executed Steps Summary (snapshot): {summary_executed}")
-                if 'final_output' in value and value['final_output']:
-                     print(f"  Snapshot 'final_output': {str(value['final_output'])[:200]}...")
-                if 'final_answer' in value and value['final_answer']:
-                     print(f"  Snapshot 'final_answer': {str(value['final_answer'])[:200]}...")
+                # final_output and final_answer specific snapshot logging removed
             elif value:
                  print(f"  Value (snapshot, non-dict): {str(value)[:200]}...")
             else:
@@ -73,71 +67,43 @@ def run_graph_production(app_instance: Any, initial_inputs: Dict[str, str], run_
         print("Graph invocation in production mode did not produce a final state.")
         return final_state # Return early if no final_state
 
-    found_answer_node_name: str | None = None
-    found_answer_content: Any = None
-    found_output_node_name: str | None = None
-    found_output_content: Any = None
+    # Logic for finding and printing 'final_answer' or 'final_output' has been removed.
+    # The following block will provide general diagnostic information about the final state.
+    print("--- Production Mode Final State Details ---")
 
-    # First pass: prioritize finding final_answer from any node
-    for node_name, node_content in final_state.items():
-        if isinstance(node_content, dict):
-            if node_content.get("final_answer"): # Checks for key existence and truthy value
-                found_answer_node_name = node_name
-                found_answer_content = node_content["final_answer"]
-                break  # Found the best possible answer (final_answer), no need to look further in other nodes for this key
+    diagnostic_items = {}
+    for k, v_node_content in final_state.items():
+        if isinstance(v_node_content, dict):
+            # Check for common potentially relevant keys or summarize if it's a non-empty dict
+            if v_node_content.get("summary"):
+                 diagnostic_items[k] = f"summary: {str(v_node_content['summary'])[:150]}..."
+            elif v_node_content.get("result"):
+                 diagnostic_items[k] = f"result: {str(v_node_content['result'])[:150]}..."
+            elif v_node_content: # Any other non-empty dict
+                diagnostic_items[k] = f"content (dict): {str(v_node_content)[:150]}..."
+        elif isinstance(v_node_content, str) and v_node_content: # Non-empty string
+            diagnostic_items[k] = f"content (str): {str(v_node_content)[:150]}..."
+        elif v_node_content: # Other non-empty, non-dict, non-str types
+            diagnostic_items[k] = f"content ({type(v_node_content).__name__}): {str(v_node_content)[:150]}..."
 
-    # Second pass (only if no final_answer was found): look for final_output from any node
-    if not found_answer_content:
-        for node_name, node_content in final_state.items():
-            if isinstance(node_content, dict):
-                if node_content.get("final_output"): # Checks for key existence and truthy value
-                    found_output_node_name = node_name
-                    found_output_content = node_content["final_output"]
-                    break # Found a final_output, take the first one encountered
-
-    primary_output_printed = False
-    if found_answer_content: # This implies found_answer_node_name is also set
-        print(f"Node '{found_answer_node_name}' -> Final Answer: {found_answer_content}")
-        primary_output_printed = True
-    elif found_output_content: # This implies found_output_node_name is also set
-        print(f"Node '{found_output_node_name}' -> Final Output (snippet): {str(found_output_content)[:200]}...")
-        primary_output_printed = True
-        
-    if not primary_output_printed:
-        # Fallback: provide more detailed diagnostic info if no primary output was found
-        print("Primary output (final_answer or final_output) not explicitly found in any node.")
-        
-        diagnostic_items = {}
-        for k, v_node_content in final_state.items():
-            if isinstance(v_node_content, dict):
-                # Check for common potentially relevant keys or summarize if it's a non-empty dict
-                if v_node_content.get("summary"):
-                     diagnostic_items[k] = f"summary: {str(v_node_content['summary'])[:150]}..."
-                elif v_node_content.get("result"):
-                     diagnostic_items[k] = f"result: {str(v_node_content['result'])[:150]}..."
-                elif v_node_content: # Any other non-empty dict
-                    diagnostic_items[k] = f"content (dict): {str(v_node_content)[:150]}..."
-            elif isinstance(v_node_content, str) and v_node_content: # Non-empty string
-                diagnostic_items[k] = f"content (str): {str(v_node_content)[:150]}..."
-            elif v_node_content: # Other non-empty, non-dict, non-str types
-                diagnostic_items[k] = f"content ({type(v_node_content).__name__}): {str(v_node_content)[:150]}..."
-
-        if diagnostic_items:
-            print("Relevant final state items for diagnostics:")
-            for node, item_summary in diagnostic_items.items():
-                print(f"  Node '{node}': {item_summary}")
-        else:
-            # If no specific items found, just list the keys of the final_state
-            print(f"No specific relevant items found for diagnostics. Full state keys: {list(final_state.keys())}")
-            # Optionally, for very thorough debugging, uncomment to print a snippet of the full state:
-            # print(f"Full final_state (first 500 chars): {str(final_state)[:500]}...")
+    if diagnostic_items:
+        print("Relevant final state items for diagnostics:")
+        for node, item_summary in diagnostic_items.items():
+            print(f"  Node '{node}': {item_summary}")
+    else:
+        # If no specific items found, just list the keys of the final_state
+        print(f"No specific relevant items found for diagnostics. Full state keys: {list(final_state.keys())}")
+        # Optionally, for very thorough debugging, uncomment to print a snippet of the full state:
+        # print(f"Full final_state (first 500 chars): {str(final_state)[:500]}...")
     
     return final_state
 
 if __name__ == "__main__":
     # --- Configuration ---
-    USE_DEBUG_STREAM_MODE = True
-    initial_query = "Analyze the TAM SAM SOM of JPMorgan Chase"
+    USE_DEBUG_STREAM_MODE = True 
+    # initial_query = "Analyze the TAM SAM SOM of JPMorgan Chase"
+    initial_query = "Analyze peer group of UBER"
+    # initial_query = "Hi"
 
     inputs: Dict[str, str] = {"original_query": initial_query}
     s: Dict[str, Any] = {} # Initialize s, will hold the final state
@@ -232,6 +198,7 @@ if __name__ == "__main__":
 
     if content_to_save_to_file: # Ensure there's something to save
         report_filename = "analysis_report.md"
+        print(f"content_to_save_to_file: {content_to_save_to_file}")
         try:
             with open(report_filename, "w", encoding="utf-8") as f:
                 f.write(content_to_save_to_file)
