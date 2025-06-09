@@ -1,10 +1,3 @@
-"""
-Guardrail Manager
-
-This module provides a unified interface for applying multiple guardrails
-to input and output text in the analyst robot application.
-"""
-
 from typing import Optional, Tuple, cast
 from src.guardrails.prompt_injection import PromptInjectionGuardrail
 from src.guardrails.sensitive_info import SensitiveInfoGuardrail
@@ -37,12 +30,11 @@ class GuardrailManager:
                 - Error message if input is unsafe, None otherwise
         """
         # Check for prompt injection
-        injection_result = self.prompt_injection_guardrail.process_input(input_text)
-        if not injection_result["is_safe"]:
-            logger.warning(f"Prompt injection detected: {injection_result['error_message']}")
-            sanitized = cast(str, injection_result["sanitized_input"])
-            error_msg = cast(str, injection_result["error_message"])
-            return False, sanitized, error_msg
+        is_safe, error_message = self.prompt_injection_guardrail.process_input(input_text)
+        if not is_safe:
+            logger.warning(f"Prompt injection detected: {error_message}")
+            # ในเวอร์ชันใหม่ไม่มี sanitized_input แล้ว ใช้ input_text เดิมแทน จะได้ส่งไป error node จบๆไปเลย
+            return False, input_text, error_message
             
         # Check for sensitive information in input
         sensitive_result = self.sensitive_info_guardrail.process_input(input_text)
@@ -67,7 +59,12 @@ class GuardrailManager:
             
         Returns:
             Processed output text with any sensitive information redacted
-        """
+        """ 
+        is_safe, reason, sanitized_output = self.prompt_injection_guardrail.process_output(output_text)
+        if not is_safe:
+            logger.warning(f"Prompt injection detected in output: {reason}")
+            output_text = sanitized_output if sanitized_output else output_text
+            
         # Check for sensitive information in output
         sensitive_result = self.sensitive_info_guardrail.process_output(output_text)
         if sensitive_result["has_sensitive_info"]:

@@ -3,19 +3,48 @@ Sensitive Information Guardrail
 
 This module provides protection against leakage of sensitive information in both
 input and output text by detecting and redacting patterns that match common
-sensitive data formats.
+sensitive data formats. Uses both regex patterns and NLP-based detection.
 """
 
 import re
-from typing import Dict, List, Optional, Pattern, Set, Tuple, Union
+import spacy
+from functools import lru_cache
+from typing import Dict, List, Optional, Pattern, Set, Tuple, Union, Any, cast
+from pathlib import Path
+
+# Type definitions for spaCy
+SpacyDoc = Any  # spacy.tokens.doc.Doc
+SpacyToken = Any  # spacy.tokens.token.Token
+SpacySpan = Any  # spacy.tokens.span.Span
+
+
+@lru_cache(maxsize=1)
+def load_nlp_model() -> spacy.language.Language:
+    """
+    Load the spaCy model with caching to avoid repeated loading.
+    
+    Returns:
+        A loaded spaCy language model
+    """
+    try:
+        return spacy.load("en_core_web_sm")
+    except OSError:
+        # If model isn't installed, download it
+        import subprocess
+        import sys
+        
+        print("Downloading spaCy model (this may take a moment)...")
+        subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+        return spacy.load("en_core_web_sm")
 
 
 class SensitiveInfoGuardrail:
     """
     A guardrail to detect and redact sensitive information.
     
-    This class implements pattern matching to identify common sensitive data patterns
-    such as credit card numbers, social security numbers, API keys, etc.
+    This class implements pattern matching and NLP-based techniques to identify 
+    common sensitive data patterns such as credit card numbers, social security 
+    numbers, API keys, etc. with enhanced contextual understanding.
     """
     
     def __init__(self) -> None:
@@ -79,6 +108,28 @@ class SensitiveInfoGuardrail:
             "username", "login", "pwd", "passcode", "pin", "access code"
         }
         
+        # NLP-based entity categories that might contain sensitive information
+        self.sensitive_entity_types: Set[str] = {
+            "PERSON",       # Names of people
+            "ORG",         # Organizations
+            "GPE",         # Geopolitical entities (countries, cities)
+            "LOC",         # Non-GPE locations
+            "MONEY",       # Monetary values
+            "CARDINAL",    # Numbers
+            "DATE",        # Dates
+        }
+        
+        # Context words that when combined with entities might indicate sensitive info
+        self.context_indicators: Dict[str, Set[str]] = {
+            "personal": {"my", "your", "his", "her", "their", "our"},
+            "credential": {"login", "password", "username", "credential", "account"},
+            "financial": {"bank", "account", "credit", "debit", "card", "payment", "transaction"}
+        }
+        
+        # Configuration for NLP processing
+        self.use_nlp: bool = True
+        self.confidence_threshold: float = 0.7  # Minimum confidence for NLP-based detection
+        
     def _check_luhn(self, card_number: str) -> bool:
         """
         Validate a credit card number using the Luhn algorithm.
@@ -109,9 +160,10 @@ class SensitiveInfoGuardrail:
             
         return (check_sum % 10) == 0
         
-    def detect_sensitive_info(self, text: str) -> List[Dict[str, Union[str, int, int]]]:
+    def detect_sensitive_info(self, text: str) -> List[Dict[str, Union[str, int, int, float]]]:
         """
-        Detect sensitive information in the provided text.
+        Detect sensitive information in the provided text using both regex patterns
+        and NLP-based entity recognition.
         
         Args:
             text: The text to scan for sensitive information
@@ -122,13 +174,15 @@ class SensitiveInfoGuardrail:
                 - 'start': Start position in the text
                 - 'end': End position in the text
                 - 'value': The detected sensitive information
+                - 'confidence': Confidence score (for NLP-based detections)
         """
         if not text or not isinstance(text, str):
             return []
             
-        findings: List[Dict[str, Union[str, int, int]]] = []
+        findings: List[Dict[str, Union[str, int, int, float]]] = []
         
-        # Check for each pattern
+        # --- Layer 1: Pattern-based detection ---
+        # Check for each regex pattern
         for info_type, pattern in self.patterns.items():
             for match in pattern.finditer(text):
                 # For credit cards, apply additional validation
@@ -141,7 +195,9 @@ class SensitiveInfoGuardrail:
                     "type": info_type,
                     "start": match.start(),
                     "end": match.end(),
-                    "value": match.group(0)
+                    "value": match.group(0),
+                    "confidence": 1.0,  # Regex matches have 100% confidence
+                    "method": "regex"
                 })
                 
         # Check for sensitive keywords in context
@@ -154,10 +210,115 @@ class SensitiveInfoGuardrail:
                     "type": "sensitive_keyword",
                     "start": match.start(),
                     "end": match.end(),
-                    "value": match.group(0)
+                    "value": match.group(0),
+                    "confidence": 0.9,  # High confidence for keyword-value pairs
+                    "method": "keyword"
                 })
+        
+        # --- Layer 2: NLP-based detection ---
+        if self.use_nlp and len(text) > 0:
+            try:
+                # Load the NLP model
+                nlp = load_nlp_model()
+                
+                # Process the text with spaCy
+                doc = nlp(text)
+                
+                # Check for named entities that might be sensitive
+                for ent in doc.ents:
+                    # If entity type is in our sensitive list
+                    if ent.label_ in self.sensitive_entity_types:
+                        # Calculate contextual confidence based on surrounding words
+                        confidence = self._calculate_entity_confidence(ent, doc)
+                        
+                        if confidence >= self.confidence_threshold:
+                            findings.append({
+                                "type": f"entity_{ent.label_.lower()}",
+                                "start": ent.start_char,
+                                "end": ent.end_char,
+                                "value": ent.text,
+                                "confidence": confidence,
+                                "method": "nlp"
+                            })
+                
+                # Check for potential sensitive patterns using dependency parsing
+                self._check_dependency_patterns(doc, findings)
+                
+            except Exception as e:
+                # Fallback if NLP processing fails
+                print(f"NLP processing error in sensitive info detection: {e}")
+                # Continue with other checks
                 
         return findings
+    
+    def _calculate_entity_confidence(self, entity: SpacySpan, doc: SpacyDoc) -> float:
+        """
+        Calculate confidence score for an entity based on surrounding context.
+        
+        Args:
+            entity: The spaCy entity span
+            doc: The full spaCy document
+            
+        Returns:
+            Confidence score between 0 and 1
+        """
+        base_confidence = 0.5  # Start with neutral confidence
+        
+        # Get context (5 tokens before and after)
+        start_idx = max(0, entity.start - 5)
+        end_idx = min(len(doc), entity.end + 5)
+        
+        context_tokens = [token.text.lower() for token in doc[start_idx:end_idx]]
+        
+        # Check for personal context indicators
+        for context_type, indicators in self.context_indicators.items():
+            for indicator in indicators:
+                if indicator in context_tokens:
+                    base_confidence += 0.1  # Increase confidence for each indicator
+        
+        # Entity type specific adjustments
+        if entity.label_ == "PERSON":
+            # Names are often sensitive
+            base_confidence += 0.1
+            
+            # Check if it looks like a full name (2+ tokens)
+            if len(entity) >= 2:
+                base_confidence += 0.1
+                
+        elif entity.label_ == "CARDINAL" and len(entity.text) >= 8:
+            # Long numbers are more likely to be sensitive
+            base_confidence += 0.1
+            
+        # Cap confidence at 1.0
+        return min(base_confidence, 1.0)
+    
+    def _check_dependency_patterns(self, doc: SpacyDoc, findings: List[Dict[str, Any]]) -> None:
+        """
+        Check for sensitive information using dependency parsing patterns.
+        
+        Args:
+            doc: The spaCy document
+            findings: List to append findings to
+        """
+        # Pattern: possessive + sensitive noun (e.g., "my password")
+        for token in doc:
+            if token.dep_ in ("poss", "nmod") and token.head.text.lower() in self.sensitive_keywords:
+                # Found pattern like "my password", now look for values
+                for child in token.head.children:
+                    if child.dep_ in ("amod", "compound", "nummod") or child.pos_ == "NUM":
+                        start = min(token.idx, token.head.idx, child.idx)
+                        end = max(token.idx + len(token.text), 
+                                 token.head.idx + len(token.head.text),
+                                 child.idx + len(child.text))
+                        
+                        findings.append({
+                            "type": "sensitive_phrase",
+                            "start": start,
+                            "end": end,
+                            "value": doc.text[start:end],
+                            "confidence": 0.8,
+                            "method": "dependency"
+                        })
         
     def redact_text(self, text: str) -> str:
         """
@@ -222,7 +383,7 @@ class SensitiveInfoGuardrail:
             
         return redacted_text
         
-    def process_input(self, input_text: str) -> Dict[str, Union[str, bool, List[Dict[str, Union[str, int]]]]]:
+    def process_input(self, input_text: str) -> Dict[str, Union[str, bool, List[Dict[str, Union[str, int, int, float]]]]]:
         """
         Process input text through the guardrail.
         
@@ -246,7 +407,7 @@ class SensitiveInfoGuardrail:
             "findings": findings
         }
         
-    def process_output(self, output_text: str) -> Dict[str, Union[str, bool, List[Dict[str, Union[str, int]]]]]:
+    def process_output(self, output_text: str) -> Dict[str, Union[str, bool, List[Dict[str, Union[str, int, int, float]]]]]:
         """
         Process output text through the guardrail.
         

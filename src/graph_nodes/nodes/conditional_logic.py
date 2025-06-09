@@ -18,3 +18,11 @@ def should_continue(state: PlanExecuteState) -> str:
         logger.info("Plan complete.")
         return "end_graph_success"
     return "executor_node"
+
+def check_input_guardrail_result(state: PlanExecuteState) -> str:
+    """Determines the next step after input guardrails have been applied."""
+    if state.get("error_message"):
+        logger.warning(f"Input guardrail failed: {state['error_message']}. Routing to error_node.")
+        return "error_node"  # Route to error_node if guardrail validation set an error
+    logger.info("Input guardrail passed. Routing to planner_node.")
+    return "planner_node"  # Proceed to planner if no error

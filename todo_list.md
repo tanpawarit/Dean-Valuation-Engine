@@ -1,3 +1,2 @@
-TODO:   
-- [ ทำไฟล main ใหม่ เเละทำ guardrail node]    
+TODO:     
 - [ finish and add agent ]

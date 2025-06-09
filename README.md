@@ -62,10 +62,10 @@ This approach enables complex, multi-step analyses that combine insights from di
 
 ### Key Technologies
 
+- **OpenAI**: Powers the core reasoning capabilities
 - **LangChain**: For agent construction and prompt engineering
-- **OpenAI GPT-4**: Powers the core reasoning capabilities
-- **LangGraph**: Orchestrates the multi-agent workflow
-- **Type Hints**: Comprehensive typing for improved code quality and maintainability
+- **LangGraph**: Orchestrates the multi-agent workflow 
+- **Spacy**: For NLP tasks (guardrails)
 - **Serper API**: Integration for real-time web search capabilities
 
 ## Development Practices
@@ -93,57 +93,28 @@ This approach enables complex, multi-step analyses that combine insights from di
 
 ### Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/tanpawarit/analyst_robot.git
-cd analyst_robot
+1. Ensure you have Python 3.10+ and [uv](https://github.com/astral-sh/uv) installed:
+   ```bash
+   pip install uv
+   ```
 
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+2. Install project dependencies using `uv`:
+   ```bash
+   uv pip install -r pyproject.toml
+   ```
 
-# ใช้ [uv](https://github.com/astral-sh/uv) เป็น Python package manager หลัก:
+3. (Recommended) Create and activate a virtual environment:
+   ```bash
+   uv venv .venv
+   source .venv/bin/activate
+   uv pip install -r pyproject.toml
+   ```
 
-uv pip install -r requirements.txt
+4. Download the required spaCy language model:
+   ```bash
+   python -m spacy download en_core_web_sm
+   ```
 
-# ติดตั้ง nemoguardrails
-uv pip install nemoguardrails
-```
-
-### การใช้งาน Nemo Guardrails
-
-โปรเจคนี้รองรับการใช้ [Nemo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) เพื่อควบคุมและ validate output ของ LLM agent
-
-- ตัวอย่าง config: `guardrails.rail`
-- ตัวอย่างการ integrate ในโค้ด Python:
-
-```python
-from nemoguardrails import LLMRails, RailsConfig
-
-config = RailsConfig.from_path("guardrails.rail")
-rails = LLMRails(config)
-result = rails.generate("สรุปเนื้อหานี้ให้หน่อย: ...")
-print(result)
-```
-
-อ่านรายละเอียดเพิ่มเติมใน [guardrails.rail](./guardrails.rail)
-
-### Usage
-
-```python
-from src.agents.planner_agent import PlannerAgent
-from src.graph_nodes.graph_state import PlanExecuteState
-
-# Initialize the system
-planner = PlannerAgent()
-
-# Run an analysis
-query = "Analyze the business model and financial strength of Tesla"
-result = planner.create_and_execute_plan(query)
-
-# Access the final analysis
-print(result["final_result"])
-```
 
 ## License
 

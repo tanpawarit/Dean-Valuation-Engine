@@ -11,10 +11,12 @@ dependencies = [
     "langchain>=0.3.25",
     "langchain-community>=0.3.24",
     "langchain-openai>=0.3.17",
-    "langgraph>=0.4.5", 
+    "langgraph>=0.4.5",
     "numpy>=2.2.5",
     "openai>=1.78.1",
     "pandas>=2.2.3",
+    "pytest>=8.4.0",
+    "spacy>=3.8.7",
 ]
 
 [dependency-groups]
