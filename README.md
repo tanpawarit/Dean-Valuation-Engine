@@ -3,12 +3,24 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![LangChain](https://img.shields.io/badge/LangChain-Framework-green)](https://github.com/langchain-ai/langchain)
 [![LangGraph](https://img.shields.io/badge/LangGraph-Framework-purple)](https://github.com/langchain-ai/langgraph)
-[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-orange)](https://openai.com/)
-[![NemoGuardrails](https://img.shields.io/badge/NemoGuardrails-Framework-purple)](https://github.com/NVIDIA/NeMo-Guardrails)
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-orange)](https://openai.com/) 
 
 ## Overview
 
 Analyst Robot is an advanced AI-powered system that performs comprehensive financial and business analysis using a multi-agent architecture. The system leverages large language models (LLMs) to analyze companies, generate insights, and provide detailed reports on business models, market sizing, and financial strength.
+
+## Table of Contents
+
+- [Features](#features)
+- [System Architecture](#system-architecture)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Directory Structure & Modules](#directory-structure--modules)
+- [Logging & Guardrails](#logging--guardrails)
+- [Developer Guide](#developer-guide)
+- [Testing](#testing)
+- [License](#license)
 
 ## Key Features
 
