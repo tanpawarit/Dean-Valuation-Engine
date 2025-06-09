@@ -1,4 +1,0 @@
-OWASP Guardrails We have
-- Prompt Injection Guardrail (user_intent_check, refuse_non_analytical_requests)
-- Sensitive Information Guardrail (sensitive_data_input_check, sensitive_data_output_check)
-- Improper Output Guardrails (output_length_check, detailed_summary_check)

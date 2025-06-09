@@ -101,8 +101,8 @@ def run_graph_production(app_instance: Any, initial_inputs: Dict[str, str], run_
 if __name__ == "__main__":
     # --- Configuration ---
     USE_DEBUG_STREAM_MODE = True 
-    initial_query = "Analyze expected growth of UBER"
-    # initial_query = "Analyze the TAM SAM SOM of JPMorgan Chase"
+    # initial_query = "Analyze expected growth of UBER"
+    initial_query = "API key: sk_test_51O9PqDGUPyCXg0QTlGRXu9XM"
     # initial_query = "Analyze peer group of UBER"
     # initial_query = "Hi"
 

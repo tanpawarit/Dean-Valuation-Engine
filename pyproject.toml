@@ -1,7 +1,7 @@
 [project]
 name = "analyst-robot"
 version = "0.1.0"
-description = "Add your description here"
+description = "ai assistant for stock analysis"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
@@ -11,8 +11,7 @@ dependencies = [
     "langchain>=0.3.25",
     "langchain-community>=0.3.24",
     "langchain-openai>=0.3.17",
-    "langgraph>=0.4.5",
-    "nemoguardrails>=0.14.0",
+    "langgraph>=0.4.5", 
     "numpy>=2.2.5",
     "openai>=1.78.1",
     "pandas>=2.2.3",
