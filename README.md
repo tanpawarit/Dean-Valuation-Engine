@@ -112,19 +112,6 @@ analyst_robot/
 
     Here’s a simplified view of the analysis workflow:
     <!-- TODO add flow graph -->
-    ```mermaid
-    graph TD
-        A[User Query: "Analyze Tesla"] --> B{1. Planner Agent};
-        B --> C{2. Check for Plan Complexity};
-        C -- Simple Plan --> D[3a. Business Analyst Agent];
-        C -- Complex Plan --> E{3b. Decompose Task};
-        E --> F[Financial Analyst Agent];
-        E --> G[Market Analyst Agent];
-        D --> H{4. Synthesizer Agent};
-        F --> H;
-        G --> H;
-        H --> I[✅ Final Report];
-    ```
 
 3.  **Data-Driven Insights (Tools):** Agents are empowered by a suite of `Tools`.
     *   `SearchTools` (leveraging Serper API) provide access to real-time web data, ensuring analyses are current and comprehensive.
