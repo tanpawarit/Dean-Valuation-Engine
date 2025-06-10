@@ -9,8 +9,7 @@ sensitive data formats. Uses both regex patterns and NLP-based detection.
 import re
 import spacy
 from functools import lru_cache
-from typing import Dict, List, Optional, Pattern, Set, Tuple, Union, Any, cast
-from pathlib import Path
+from typing import Dict, List, Pattern, Set, Union, Any
 
 # Type definitions for spaCy
 SpacyDoc = Any  # spacy.tokens.doc.Doc

@@ -8,8 +8,7 @@ and NLP-based techniques with spaCy.
 
 import re
 import spacy
-from typing import Dict, List, Optional, Pattern, Set, Tuple, Union
-from pathlib import Path
+from typing import List, Optional, Pattern, Set, Tuple 
 from functools import lru_cache
 
 
