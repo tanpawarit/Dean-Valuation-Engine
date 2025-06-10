@@ -5,80 +5,167 @@
 [![LangGraph](https://img.shields.io/badge/LangGraph-Framework-purple)](https://github.com/langchain-ai/langgraph)
 [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-orange)](https://openai.com/) 
 
-## Overview
+## Overview: Your AI Co-Pilot for Deep Analysis 🚀
 
-Analyst Robot is an advanced AI-powered system that performs comprehensive financial and business analysis using a multi-agent architecture. The system leverages large language models (LLMs) to analyze companies, generate insights, and provide detailed reports on business models, market sizing, and financial strength.
+Ever wished for an tireless, expert analyst by your side, capable of dissecting complex business landscapes and financial statements in minutes? **Analyst Robot is here!** This isn't just another AI tool; it's a sophisticated, multi-agent system designed to be your intelligent partner in financial and business analysis. Leveraging the cutting-edge power of Large Language Models (LLMs), Analyst Robot dives deep into company data, market trends, and financial health, emerging with crystal-clear insights and comprehensive reports. Get ready to unlock a new level of understanding!
 
 ## Table of Contents
 
 - [Features](#features)
+- [Sample Analysis Output](#sample-analysis-output)
 - [System Architecture](#system-architecture)
+- [Technical Deep Dive](#technical-deep-dive)
+- [Logging & Guardrails](#logging--guardrails)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
-- [Directory Structure & Modules](#directory-structure--modules)
-- [Logging & Guardrails](#logging--guardrails)
 - [Developer Guide](#developer-guide)
 - [Testing](#testing)
 - [License](#license)
 
-## Key Features
+## Key Features: What Makes Analyst Robot Scream-Worthy! 🌟
 
-- **Multi-Agent Architecture**: Specialized agents work together to analyze different aspects of a company
-- **Orchestrated Workflow**: Dynamic planning and execution using a graph-based workflow system
-- **Specialized Analysis Capabilities**:
-  - Business Model & Market Sizing Analysis
-  - Financial Strength Analysis
-  - Comprehensive Data Synthesis
-- **Web Search Integration**: Real-time data collection for up-to-date analysis
-- **Type-Safe Implementation**: Fully typed Python codebase with strict type checking
+- **🤖 Symphony of Specialized Agents**: Imagine a dream team of AI analysts! Each agent is a master of its domain (business models, financial health, market trends), collaborating to provide a holistic view.
+- **📈 Dynamic Graph-Powered Orchestration**: No rigid scripts here! Analyst Robot uses a flexible, graph-based system (LangGraph) to plan and execute complex analyses dynamically, adapting to the unique needs of each query.
+- **🎯 Pinpoint Analysis Capabilities**:
+    - **Business Model & Market Sizing Mastery**: Uncover the DNA of a company's success and its true market potential.
+    - **Financial X-Ray Vision**: Deep dive into financial statements to assess strength, stability, and future outlook.
+    - **Insight Synthesis Engine**: Transforms raw data and individual findings into coherent, actionable intelligence.
+- **🌐 Real-Time Web Intelligence**: Stale data? Not on our watch! Integrated web search (via Serper API) ensures your analysis is fueled by the latest information.
+- **🛡️ Rock-Solid & Type-Safe**: Built with Python and meticulous type-hinting, ensuring robustness, maintainability, and fewer surprises.
+- **✍️ Detailed Execution Logging**: Transparent and detailed logging of every step in the analysis graph, perfect for understanding, debugging, and auditing. (Thanks, `src/utils/graph_logger.py`!)
 
-## System Architecture
+## Sample Analysis Output
+#TODO add flow graph
+
+## System Architecture: A Symphony of AI Agents 🚀
+
+Analyst Robot isn't just a program; it's a sophisticated ecosystem of intelligent agents working in concert, orchestrated by a dynamic graph-based workflow. Imagine a team of expert analysts, each a master of their domain, collaborating seamlessly to deliver profound insights. That's the power of Analyst Robot.
+
+Here's a glimpse into its inner workings:
 
 ```
 analyst_robot/
 ├── src/
-│   ├── agents/                 # Specialized AI agents
-│   │   ├── specialize_agent/   # Domain-specific analysis agents
-│   │   └── planner_agent.py    # Orchestration and planning
-│   ├── graph_nodes/            # LangGraph workflow components
-│   │   └── nodes/              # Individual workflow nodes
-│   ├── tools/                  # External API integrations
-│   │   └── search_tools.py     # Web search capabilities
-│   └── utils/                  # Shared utilities
-└── [additional project files]
+│   ├── agents/                 # 🧠 The Brains: Specialized AI Agents
+│   │   ├── planner_agent.py    # 🗺️ The Master Orchestrator: Plans and directs analysis
+│   │   ├── specialize_agent/   # 🕵️‍♂️ Domain Experts: Deep-dive analysis (Business, Financial, etc.)
+│   │   ├── other_agent/        # 🧩 Utility Agents: Supporting analytical tasks
+│   │   ├── registry.py         # 📚 Agent Directory: Keeps track of available agents
+│   │   └── constant.py         # ⚙️ Agent Configuration Constants
+│   │
+│   ├── graph_nodes/            # 🔗 The Workflow Engine: LangGraph Components
+│   │   ├── graph_builder.py    # 🏗️ The Architect: Constructs the analysis workflow
+│   │   ├── graph_state.py      # 💾 Shared Memory: Manages state across the workflow
+│   │   └── nodes/              # 🧩 Action Blocks: Individual steps in the analysis graph
+│   │
+│   ├── tools/                  # 🛠️ The Toolkit: External Integrations & Capabilities
+│   │   ├── search_tools.py     # 🌐 Web Intelligence: Real-time data via Serper API
+│   │   └── web_loader_tools.py # 📄 Content Fetchers: Grabs and processes web content
+│   │
+│   ├── utils/                  # 🔧 Utility Belt: Shared Helpers & Configuration
+│   │   ├── config_manager.py   # 🔑 Secrets & Settings: Manages API keys and configurations
+│   │   ├── graph_logger.py     # 📊 Execution Insights: Detailed logging of graph operations
+│   │   └── logger.py           # 📝 General Scribe: System-wide logging
+│   │
+│   ├── guardrails/             # 🛡️ Ethical Compass: Ensuring Responsible AI
+│   │   ├── prompt_injection.py # 🛡️ Detects & Mitigates Prompt Injection Attempts
+│   │   ├── sensitive_info.py   # 🤫 Identifies & Redacts Sensitive Information (PII)
+│   │   └── guardrail_manager.py# 🚦 Orchestrates Guardrail Checks
+│
+├── pyproject.toml              # 📦 Project Dependencies & Configuration (uv) 
+├── main.py                     # 🚀 Entry Point: Kicks off the analysis
+└── README.md                   # 🕮 You are here!
 ```
 
-## Technical Implementation
+**Core Principles:**
 
-### Agent System
+1.  **Agent Specialization:** At the heart of Analyst Robot are highly specialized agents. The `PlannerAgent` acts as the conductor, interpreting user requests and devising a strategic plan. It then delegates tasks to `SpecializeAgent`s, such as:
+    *   **BusinessModelAnalyst:** Dissects business models, revenue streams, and market positioning.
+    *   **FinancialStrengthAnalyst:** Scrutinizes financial health, ratios, and stability. 
 
-The project implements a sophisticated multi-agent system where each agent specializes in a specific domain of analysis:
+2.  **Dynamic Workflow Orchestration (LangGraph):** Forget static scripts! Analyst Robot uses `LangGraph` to build and execute dynamic workflows.
+    *   The `GraphBuilder` constructs a stateful graph where each `Node` represents a specific action (e.g., run an agent, search the web, process data).
+    *   `GraphState` ensures information flows smoothly between nodes, allowing for complex, multi-step reasoning.
+    *   This graph-based approach allows for conditional logic, retries, and parallel execution, making the analysis robust and adaptable.
 
-- **Business Analyst Agent**: Analyzes business models, revenue streams, and market sizing
-- **Financial Strength Analyst Agent**: Evaluates financial health through key metrics and ratios
-- **Summarizer Agent**: Synthesizes outputs from multiple agents into coherent, actionable insights
+3.  **Data-Driven Insights (Tools):** Agents are empowered by a suite of `Tools`.
+    *   `SearchTools` (leveraging Serper API) provide access to real-time web data, ensuring analyses are current and comprehensive.
+    *   `WebLoaderTools` fetch and prepare online content for agent consumption.
 
-Each agent is built using LangChain's agent framework with custom prompts engineered for specific analytical tasks.
+4.  **Robust Foundation (Utils & Guardrails):**
+    *   `ConfigManager` securely handles sensitive information like API keys.
+    *   Comprehensive logging (`GraphLogger`, `Logger`) provides transparency and aids in debugging.
+    *   The `Guardrails` system aims to ensure ethical, unbiased, and responsible AI outputs.
 
-### Workflow Orchestration
+This architecture allows Analyst Robot to tackle complex analytical challenges with a level of depth and dynamism previously unattainable. It's not just about processing data; it's about generating genuine understanding.
 
-The system uses a graph-based workflow engine to:
+## Technical Deep Dive: How the Magic Happens 🛠️
 
-1. Plan the analysis based on the user's query
-2. Assign specialized agents to specific analytical tasks
-3. Execute the plan in a coordinated sequence
-4. Synthesize results into a comprehensive final report
+Analyst Robot's power stems from a carefully crafted architecture, blending specialized AI agents with a dynamic workflow engine. (Refer to the [System Architecture](#system-architecture) diagram for a visual map!)
 
-This approach enables complex, multi-step analyses that combine insights from different analytical perspectives.
+### The Agentic Powerhouse
 
-### Key Technologies
+The core of Analyst Robot is its multi-agent system, primarily managed within the `src/agents/` directory:
+- **`PlannerAgent` (The Conductor)**: This crucial agent, located in `planner_agent.py`, receives the user's request. It then formulates a strategic plan, deciding which specialized agents are needed and in what order they should run. Think of it as the project manager for the AI team.
+- **`SpecializeAgent`s (The Experts)**: Housed in `src/agents/specialize_agent/`, these are the domain gurus. Examples include:
+    - *BusinessModelAnalyst*: Focuses on understanding a company's operational strategy, revenue generation, and market positioning.
+    - *FinancialStrengthAnalyst*: Dives into financial statements, calculating key ratios and assessing overall fiscal health.
+    Each agent leverages LangChain for its core logic, equipped with custom-engineered prompts tailored for its specific analytical tasks. The `agents/registry.py` helps in managing and accessing these specialized agents.
 
-- **OpenAI**: Powers the core reasoning capabilities
-- **LangChain**: For agent construction and prompt engineering
-- **LangGraph**: Orchestrates the multi-agent workflow 
-- **Spacy**: For NLP tasks (guardrails)
-- **Serper API**: Integration for real-time web search capabilities
+### Dynamic Workflow Orchestration with LangGraph
+
+Static, predefined workflows are too limiting for complex analysis. That's where LangGraph, managed in `src/graph_nodes/`, shines:
+- **`GraphBuilder` (`graph_builder.py`)**: This module is responsible for constructing the actual execution graph. Based on the `PlannerAgent`'s strategy, it dynamically assembles a series of `Nodes` (from `src/graph_nodes/nodes/`).
+- **`GraphState` (`graph_state.py`)**: This defines the shared "memory" or state that is passed between nodes in the graph. It allows information, partial results, and context to flow seamlessly through the analysis pipeline.
+- **Nodes**: Each node in the graph represents a specific task – invoking an agent, calling a tool (like web search), processing data, or making a decision. This modularity allows for incredible flexibility and the ability to create sophisticated, multi-step reasoning chains.
+
+### Empowering Tools & Utilities
+
+- **Real-Time Data Acquisition (`src/tools/`)**:
+    - `search_tools.py`: Integrates with the Serper API, providing agents with the ability to perform real-time web searches for the most up-to-date information.
+    - `web_loader_tools.py`: Fetches and preprocesses content from URLs, making it ready for agent analysis.
+- **Robust Foundation (`src/utils/`)**:
+    - `config_manager.py`: Securely manages API keys (OpenAI, Serper) and other configurations.
+    - `logger.py` & `graph_logger.py`: Provide comprehensive logging. `graph_logger.py` is particularly vital, offering detailed insights into the execution of each node and the overall state of the LangGraph workflow, which is invaluable for debugging and understanding the system's behavior (this logs to `graph_execution_details.log`).
+
+### Key Technologies Fueling the Robot
+
+- **🧠 OpenAI (GPT models)**: The powerhouse behind the agents' reasoning, understanding, and generation capabilities.
+- **🔗 LangChain**: The foundational framework for building agents, managing prompts, and structuring interactions with LLMs.
+- **📈 LangGraph**: The engine for orchestrating the complex, stateful, multi-agent workflows.
+- **🌐 Serper API**: The gateway to real-time web search, keeping analyses fresh and relevant.
+- **🔒 Python 3.10+ with Full Type Hinting**: Ensures code clarity, robustness, and easier maintenance.
+- **🛡️ spaCy**: Utilized for NLP tasks, potentially within the `guardrails` system for content analysis or PII detection.
+
+## Logging & Guardrails: Transparency and Responsibility 🛡️📊
+
+Understanding what the Analyst Robot is doing and ensuring it operates responsibly are paramount.
+
+### Comprehensive Logging
+
+- **General System Logs (`src/utils/logger.py`)**: Captures broad operational information, errors, and system events.
+- **Detailed Graph Execution Logs (`src/utils/graph_logger.py`)**: This is where the magic of the workflow becomes transparent! This module provides meticulous JSON Lines logs (`graph_execution_details.log`) for each graph run. It records:
+    - A unique `run_id` for each analysis.
+    - The state *before* and *after* each node in the LangGraph executes.
+    - The outputs or errors generated by each node.
+    - Graph start and end times.
+    This granular logging is indispensable for debugging, performance analysis, and auditing the decision-making process of the AI.
+
+### Ethical Guardrails (`src/guardrails/`): Building Trust & Safety
+
+Analyst Robot is engineered with a strong commitment to responsible AI. The `src/guardrails/` directory houses critical components designed to ensure safe and ethical operation, managed by the `guardrail_manager.py`:
+
+- **🛡️ Prompt Injection Defense (`prompt_injection.py`)**: Actively works to detect and neutralize attempts to manipulate the LLM's behavior through malicious inputs. This helps maintain the integrity and intended focus of the analysis.
+- **🤫 Sensitive Information (PII) Detection & Redaction (`sensitive_info.py`)**: Scans inputs and potential outputs for Personally Identifiable Information (PII) and other sensitive data. Detected information can be flagged or redacted to protect user privacy and comply with data protection standards. (Leverages spaCy for some NLP-based detection).
+
+**Ongoing Development & Future Goals:**
+While the current guardrails provide a strong foundation, we are continuously working to enhance them. Future aspirations include more sophisticated mechanisms for:
+- **Bias Mitigation**: Developing techniques to identify and reduce potential biases in analytical outputs.
+- **Content Moderation**: Expanding checks to prevent the generation of inappropriate or harmful content beyond PII and prompt injections.
+- **Factual Accuracy Enhancement**: Implementing more robust cross-referencing and validation techniques.
+
+Building trust and ensuring the reliability of AI-generated insights is a top priority.
 
 ## Development Practices
 
