@@ -5,6 +5,8 @@
 [![LangGraph](https://img.shields.io/badge/LangGraph-Framework-green)](https://github.com/langchain-ai/langgraph)  
 [![OpenAI](https://img.shields.io/badge/OpenAI-API-blue)](https://openai.com/)  
 [![Serper](https://img.shields.io/badge/Serper-API-blue)](https://serper.dev/)  
+[![spaCy](https://img.shields.io/badge/spaCy-API-blue)](https://spacy.io/)  
+[![License](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/licenses/MIT)
 
 ---
 
