@@ -121,8 +121,6 @@ Uber's business model, financial strength, and growth potential position it as a
 
 Dean's Valuation Engine isn't just a program; it's a sophisticated ecosystem of intelligent agents working in concert, orchestrated by a dynamic graph-based workflow.
 
-![System Architecture](asset/graph.png)
-
 ---
 
 Here's a glimpse into its inner workings:
@@ -188,6 +186,8 @@ Agents are empowered by a suite of `Tools`:
 ## 🔬 Technical Deep Dive: How the Magic Happens 🛠️
 
 Dean's's power stems from a carefully crafted architecture, blending specialized AI agents with a dynamic workflow engine. (Refer to the [System Architecture](#system-architecture) diagram for a visual map!)
+
+![System Architecture](asset/graph.png)
 
 ### The Agentic Powerhouse
 
