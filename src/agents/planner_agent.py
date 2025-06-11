@@ -73,7 +73,7 @@ class Planner:
 
             if isinstance(plan, list):
                 if not plan:
-                    # TODO handle empty plan with fallback or none
+                    # handle empty plan with fallback or none
                     pass  # ถ้า plan ว่าง และ prompt ควรจะจัดการได้แล้ว ก็ปล่อยให้เป็น list ว่างได้
 
                 required_keys: list[str] = ["step_id", "task_description", "assigned_agent"]

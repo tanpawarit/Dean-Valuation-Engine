@@ -1,2 +1,3 @@
 TODO:     
-- [ finish and add agent ]
+- [ finish main.py ]
+- [ add agent ]
