@@ -2,8 +2,9 @@
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)  
 [![LangChain](https://img.shields.io/badge/LangChain-Framework-green)](https://github.com/langchain-ai/langchain)  
-[![LangGraph](https://img.shields.io/badge/LangGraph-Framework-purple)](https://github.com/langchain-ai/langgraph)  
-[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-orange)](https://openai.com/)  
+[![LangGraph](https://img.shields.io/badge/LangGraph-Framework-green)](https://github.com/langchain-ai/langgraph)  
+[![OpenAI](https://img.shields.io/badge/OpenAI-API-blue)](https://openai.com/)  
+[![Serper](https://img.shields.io/badge/Serper-API-blue)](https://serper.dev/)  
 
 ---
 
@@ -32,7 +33,7 @@
 ## ✨ Features
 ![Dean's Valuation Engine Workflow](asset/agent_flow_update.png)
 - **🤖 Symphony of Specialized Agents**: Imagine a dream team of AI analysts! Each agent is a master of its domain (business models, financial health, market trends), collaborating to provide a holistic view.
-- **📈 Dynamic Graph-Powered Orchestration**: No rigid scripts here! Analyst Robot uses a flexible, graph-based system (LangGraph) to plan and execute complex analyses dynamically, adapting to the unique needs of each query.
+- **📈 Dynamic Graph-Powered Orchestration**: No rigid scripts here! Dean's uses a flexible, graph-based system (LangGraph) to plan and execute complex analyses dynamically, adapting to the unique needs of each query.
 - **🎯 Pinpoint Analysis Capabilities**:
     - **Business Model & Market Sizing Mastery**: Uncover the DNA of a company's success and its true market potential.
     - **Financial X-Ray Vision**: Deep dive into financial statements to assess strength, stability, and future outlook.
@@ -159,12 +160,12 @@ dean_valuation_engine/
 ### Core Principles
 
 1️⃣ **Agent Specialization**  
-At the heart of Analyst Robot are highly specialized agents. The `PlannerAgent` acts as the conductor, interpreting user requests and devising a strategic plan. It then delegates tasks to `SpecializeAgent`s, such as:
+At the heart of Dean's are highly specialized agents. The `PlannerAgent` acts as the conductor, interpreting user requests and devising a strategic plan. It then delegates tasks to `SpecializeAgent`s, such as:
 - **BusinessModelAnalyst:** Dissects business models, revenue streams, and market positioning.
 - **FinancialStrengthAnalyst:** Scrutinizes financial health, ratios, and stability.
 
 2️⃣ **Dynamic Workflow Orchestration (LangGraph)**  
-Forget static scripts! Analyst Robot uses `LangGraph` to build and execute dynamic workflows.
+Forget static scripts! Dean's uses `LangGraph` to build and execute dynamic workflows.
 - The `GraphBuilder` constructs a stateful graph where each `Node` represents a specific action (e.g., run an agent, search the web, process data).
 - `GraphState` ensures information flows smoothly between nodes, allowing for complex, multi-step reasoning.
 - This graph-based approach allows for conditional logic, retries, and parallel execution, making the analysis robust and adaptable.
@@ -179,17 +180,17 @@ Agents are empowered by a suite of `Tools`:
 - Comprehensive logging (`GraphLogger`, `Logger`) provides transparency and aids in debugging.
 - The `Guardrails` system aims to ensure ethical, unbiased, and responsible AI outputs.
 
-> This architecture allows Analyst Robot to tackle complex analytical challenges with a level of depth and dynamism previously unattainable. It's not just about processing data; it's about generating genuine understanding.
+> This architecture allows Dean's to tackle complex analytical challenges with a level of depth and dynamism previously unattainable. It's not just about processing data; it's about generating genuine understanding.
 
 ---
 
 ## 🔬 Technical Deep Dive: How the Magic Happens 🛠️
 
-Analyst Robot's power stems from a carefully crafted architecture, blending specialized AI agents with a dynamic workflow engine. (Refer to the [System Architecture](#system-architecture) diagram for a visual map!)
+Dean's's power stems from a carefully crafted architecture, blending specialized AI agents with a dynamic workflow engine. (Refer to the [System Architecture](#system-architecture) diagram for a visual map!)
 
 ### The Agentic Powerhouse
 
-The core of Analyst Robot is its multi-agent system, primarily managed within the `src/agents/` directory:
+The core of Dean's is its multi-agent system, primarily managed within the `src/agents/` directory:
 - **`PlannerAgent` (The Conductor)**: This crucial agent, located in `planner_agent.py`, receives the user's request. It then formulates a strategic plan, deciding which specialized agents are needed and in what order they should run. Think of it as the project manager for the AI team.
 - **`SpecializeAgent`s (The Experts)**: Housed in `src/agents/specialize_agent/`, these are the domain gurus. Examples include:
     - *BusinessModelAnalyst*: Focuses on understanding a company's operational strategy, revenue generation, and market positioning.
@@ -226,7 +227,7 @@ Static, predefined workflows are too limiting for complex analysis. That's where
 
 ## 🛡️ Logging & Guardrails: Transparency and Responsibility 📊
 
-Understanding what the Analyst Robot is doing and ensuring it operates responsibly are paramount.
+Understanding what the Dean's is doing and ensuring it operates responsibly are paramount.
 
 ---
 
@@ -242,7 +243,7 @@ Understanding what the Analyst Robot is doing and ensuring it operates responsib
 
 ### Ethical Guardrails (`src/guardrails/`): Building Trust & Safety
 
-Analyst Robot is engineered with a strong commitment to responsible AI. The `src/guardrails/` directory houses critical components designed to ensure safe and ethical operation, managed by the `guardrail_manager.py`:
+Dean's is engineered with a strong commitment to responsible AI. The `src/guardrails/` directory houses critical components designed to ensure safe and ethical operation, managed by the `guardrail_manager.py`:
 
 - **🛡️ Prompt Injection Defense (`prompt_injection.py`)**: Actively works to detect and neutralize attempts to manipulate the LLM's behavior through malicious inputs. This helps maintain the integrity and intended focus of the analysis.
 - **🤫 Sensitive Information (PII) Detection & Redaction (`sensitive_info.py`)**: Scans inputs and potential outputs for Personally Identifiable Information (PII) and other sensitive data. Detected information can be flagged or redacted to protect user privacy and comply with data protection standards. (Leverages spaCy for some NLP-based detection).
