@@ -14,7 +14,7 @@
 >
 > Built upon the renowned **Damodaran Valuation Framework**, it combines rigorous quantitative assessment with compelling business narratives. It doesn’t just crunch numbers — it crafts the story behind them.
 >
-> The name pays homage to Professor Aswath Damodaran, the **“Dean of Valuation”**, reflecting the system’s foundation in his esteemed methodologies and its commitment to excellence in financial analysis.
+The name pays homage to Professor Aswath Damodaran, the **“Dean of Valuation”**, reflecting the system’s foundation in his esteemed methodologies and its commitment to excellence in financial analysis.
 
 ---
 
