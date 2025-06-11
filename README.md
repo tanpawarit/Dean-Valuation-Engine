@@ -30,7 +30,7 @@
 ---
 
 ## ✨ Features
-![Dean's Valuation Engine Workflow](asset/agent_flow.png)
+![Dean's Valuation Engine Workflow](asset/agent_flow_update.png)
 - **🤖 Symphony of Specialized Agents**: Imagine a dream team of AI analysts! Each agent is a master of its domain (business models, financial health, market trends), collaborating to provide a holistic view.
 - **📈 Dynamic Graph-Powered Orchestration**: No rigid scripts here! Analyst Robot uses a flexible, graph-based system (LangGraph) to plan and execute complex analyses dynamically, adapting to the unique needs of each query.
 - **🎯 Pinpoint Analysis Capabilities**:
@@ -118,6 +118,8 @@ Uber's business model, financial strength, and growth potential position it as a
 ## 🏗️ System Architecture
 
 Dean's Valuation Engine isn't just a program; it's a sophisticated ecosystem of intelligent agents working in concert, orchestrated by a dynamic graph-based workflow.
+
+![System Architecture](asset/graph.png)
 
 ---
 
