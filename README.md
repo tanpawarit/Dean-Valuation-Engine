@@ -1,11 +1,10 @@
 # Dean's Valuation Engine: AI-Powered Investment Analysis System
 
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)  
-[![LangChain](https://img.shields.io/badge/LangChain-Framework-green)](https://github.com/langchain-ai/langchain)  
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)    
 [![LangGraph](https://img.shields.io/badge/LangGraph-Framework-green)](https://github.com/langchain-ai/langgraph)  
 [![OpenAI](https://img.shields.io/badge/OpenAI-API-blue)](https://openai.com/)  
 [![Serper](https://img.shields.io/badge/Serper-API-blue)](https://serper.dev/)  
-[![spaCy](https://img.shields.io/badge/spaCy-API-blue)](https://spacy.io/)  
+[![spaCy](https://img.shields.io/badge/spaCy-Framework-blue)](https://spacy.io/)  
 [![License](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/licenses/MIT)
 
 ---
