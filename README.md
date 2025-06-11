@@ -31,8 +31,8 @@
 ---
 
 ## ✨ Features
-![Dean's Valuation Engine Workflow](asset/agent_flow_update.png)
 - **🤖 Symphony of Specialized Agents**: Imagine a dream team of AI analysts! Each agent is a master of its domain (business models, financial health, market trends), collaborating to provide a holistic view.
+![Dean's Valuation Engine Workflow](asset/agent_flow_update.png)
 - **📈 Dynamic Graph-Powered Orchestration**: No rigid scripts here! Dean's uses a flexible, graph-based system (LangGraph) to plan and execute complex analyses dynamically, adapting to the unique needs of each query.
 - **🎯 Pinpoint Analysis Capabilities**:
     - **Business Model & Market Sizing Mastery**: Uncover the DNA of a company's success and its true market potential.
