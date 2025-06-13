@@ -1,0 +1,4 @@
+openai:
+  token: "xxx"
+serper:
+  token: "xxx" 

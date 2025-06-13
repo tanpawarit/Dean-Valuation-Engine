@@ -1,3 +1,3 @@
 TODO:     
-- [ finish main.py ]
+- [ add guardrails output node ]
 - [ add agent ]
