@@ -23,10 +23,10 @@ The name pays homage to Professor Aswath Damodaran, the **“Dean of Valuation�
 
 - [✨ Features](#features)
 - [📝 Sample Analysis Output](#sample-analysis-output)
-- [🏗️ System Architecture](#system-architecture)
-- [🔬 Technical Deep Dive](#technical-deep-dive)
-- [🛡️ Logging & Guardrails](#logging-guardrails)
-- [⚙️ Installation](#installation)
+- [🔑 Key Technologies](#key-technologies)
+- [🏗️ Architecture & Technical Deep Dive](#architecture--technical-deep-dive)
+- [🛡️ Transparency & Responsibility](#transparency--responsibility)
+- [🚀 Getting Started](#getting-started)
 - [📄 License](#license)
 
 ---
@@ -34,7 +34,7 @@ The name pays homage to Professor Aswath Damodaran, the **“Dean of Valuation�
 ## ✨ Features
 - **🤖 Symphony of Specialized Agents**: Imagine a dream team of AI analysts! Each agent is a master of its domain (business models, financial health, market trends), collaborating to provide a holistic view.
 ![Dean's Valuation Engine Workflow](asset/agent_flow_update.png)
-- **📈 Dynamic Graph-Powered Orchestration**: No rigid scripts here! Dean's uses a flexible, graph-based system (LangGraph) to plan and execute complex analyses dynamically, adapting to the unique needs of each query.
+- **📈 Dynamic Analysis Plans**: Powered by LangGraph, the system intelligently adapts its analysis strategy for each unique company, ensuring a relevant and thorough investigation.
 - **🎯 Pinpoint Analysis Capabilities**:
     - **Business Model & Market Sizing Mastery**: Uncover the DNA of a company's success and its true market potential.
     - **Financial X-Ray Vision**: Deep dive into financial statements to assess strength, stability, and future outlook.
@@ -114,14 +114,26 @@ Uber's business model, financial strength, and growth potential position it as a
 14. [SEC 10-K Filings](https://www.sec.gov/Archives/edgar/data/1543151/000154315125000008/uber-20241231.htm)
 </details>
 
+## 🔑 Key Technologies
+
+![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg) ![LangGraph](https://img.shields.io/badge/LangGraph-Framework-blue) ![OpenAI](https://img.shields.io/badge/OpenAI-API-blue) ![Serper](https://img.shields.io/badge/Serper-API-blue) ![spaCy](https://img.shields.io/badge/spaCy-Framework-blue)
+
+- **OpenAI GPT Models** – reasoning & generation powerhouse
+- **LangGraph** – dynamic stateful workflow engine
+- **LangChain** – agent and prompt framework
+- **Serper API** – real-time web search
+- **spaCy** – NLP utilities for guardrails
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ Architecture & Technical Deep Dive
 
 Dean's Valuation Engine isn't just a program; it's a sophisticated ecosystem of intelligent agents working in concert, orchestrated by a dynamic graph-based workflow.
 
 ---
+
+<details>
+<summary><strong>🔬 Click for a detailed file-by-file breakdown</strong></summary>
 
 Here's a glimpse into its inner workings:
 
@@ -226,7 +238,14 @@ Static, predefined workflows are too limiting for complex analysis. That's where
 
 ---
 
-## 🛡️ Logging & Guardrails: Transparency and Responsibility 📊
+</details>
+
+## 🛡️ Transparency & Responsibility
+
+To ensure reliability and ethical use, the engine is built with comprehensive logging and robust safety guardrails. Every step of the analysis is tracked for full transparency, while guardrails actively prevent prompt injection and redact sensitive user data.
+
+<details>
+<summary><strong>📋 Learn more about our logging and guardrail implementation</strong></summary>
 
 Understanding what the Dean's is doing and ensuring it operates responsibly are paramount.
 
@@ -256,6 +275,8 @@ While the current guardrails provide a strong foundation, we are continuously wo
 - **Factual Accuracy Enhancement**: Implementing more robust cross-referencing and validation techniques.
 
 Building trust and ensuring the reliability of AI-generated insights is a top priority.
+
+</details>
 
 ## Development Practices
 

@@ -46,4 +46,5 @@
 
 ---
 
-### Summary: Prompt injection guardrail does not provide redacted_input because sanitizing the text cannot guarantee safety; risky input must be blocked immediately. Sensitive info guardrail can redact because the data patterns are clear and redaction does not affect the main logic of the text.
+### Summary: 
+- Prompt injection guardrail does not provide redacted_input because sanitizing the text cannot guarantee safety; risky input must be blocked immediately. Sensitive info guardrail can redact because the data patterns are clear and redaction does not affect the main logic of the text.
