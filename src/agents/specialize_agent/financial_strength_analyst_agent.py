@@ -50,6 +50,11 @@ class FinancialStrengthAnalystAgent:
                     - **Manufacturing** companies may have an **FCF Margin below 10%**.
                 - **Analyst Commentary:** Analyze the company's FCF margin in the context of its industry and business model. Explain what this margin reveals about the efficiency with which the company converts revenue into free cash. Compare it to competitors and discuss whether it indicates a healthy, sustainable business or areas for operational improvement.
         
+            ## Risk Analysis
+            - Identify financial risks such as high leverage, liquidity constraints, currency exposure, or volatile cash flows that could threaten the company’s financial stability.
+            - Evaluate the severity and probability of each risk and its potential impact on key financial metrics.
+            - **Analyst Commentary:** Explain how these risks might materialize and propose mitigation or monitoring approaches.
+
             ## Content Guidelines:
             ### Required Information:
             - Balance Sheet

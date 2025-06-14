@@ -54,6 +54,11 @@ class GrowthAnalystAgent:
                 **Analyst Commentary:** Conclude with an overall assessment of the company's reinvestment strategy and capital allocation effectiveness. Is the company investing wisely for future growth, and is this reflected in its ROIC? Highlight any concerns or strengths.
 
 
+            ## Risk Analysis
+            - Highlight growth-related risks such as market saturation, overexpansion, execution missteps, or dependency on favorable economic conditions.
+            - Assess how sensitive projected growth is to changes in key assumptions (e.g., demand elasticity, competitive responses).
+            - **Analyst Commentary:** Discuss scenarios where growth may disappoint and outline contingency plans or strategic pivots.
+
             ## Content Guidelines:
             ### Required Information: 
             - Balance Sheet (past 5 years)

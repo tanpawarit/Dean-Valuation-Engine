@@ -54,6 +54,11 @@ class MoatAnalystAgent:
                 - **Synthesis of Moat and Market Position:** Connect the identified moat to the company's market share. Explain how its structural advantages (or lack thereof) translate into its market position and growth.
                 - **Long-Term Profitability Outlook:** Based on the strength of the moat, its market leadership, and the industry characteristics, provide an outlook on the company's ability to generate consistent, long-term profits. If the moat and market share are strong, explain how this creates a high probability of durable profitability, even in a changing market environment.
 
+            ## Risk Analysis
+            - Identify competitive and industry risks that could erode the company’s moat (e.g., disruptive technologies, regulatory shifts, aggressive new entrants, supplier concentration).
+            - Evaluate the likelihood and potential impact of moat deterioration and how quickly it could occur.
+            - **Analyst Commentary:** Discuss strategic actions the company can take to defend or strengthen its competitive advantage in light of these risks.
+
             ## Content Guidelines:
             ### Required Information:
             - Annual Reports (10-K, 56-1) and Investor Presentations

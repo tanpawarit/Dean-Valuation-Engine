@@ -61,6 +61,11 @@ class BusinessAnalystAgent:
             - **Growth Potential:** Assess your competitive advantages (e.g., technology, pricing, brand) and latent market demand to project potential share gains.
             - **Analyst Commentary:** Discuss which levers (marketing, product features, distribution) will drive that growth.
 
+            ## Risk Analysis
+            - Identify key risks and uncertainties that could impact the company's business model, market position, and financial performance (e.g., regulatory changes, competitive threats, supply-chain disruptions, technological shifts, macroeconomic factors).
+            - Assess the potential impact and likelihood of each risk.
+            - **Analyst Commentary:** Discuss how these risks could affect the company’s future prospects and suggest possible mitigation strategies.
+
             ## Content Guidelines:
             ### Required Information:
             - Annual Reports (10-K, 56-1)
