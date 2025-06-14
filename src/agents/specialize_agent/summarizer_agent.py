@@ -61,12 +61,19 @@ class SummarizerAgent:
                 * Markdown headings (e.g., `## Main Findings`, `## Key Data Points`) to organize content if the summary is extensive.
                 * Bullet points or numbered lists for lists or key takeaways, if appropriate.
                 * A concluding sentence if it adds value.
+                * **If appropriate, present key comparative data or multi-dimensional insights in a Markdown table for clarity.**
             8.  **Accuracy and Fidelity:**
                 * Ensure your summary accurately reflects the information provided in the agent outputs.
                 * **Crucially, do not introduce any new information, data, analysis, or opinions that were not present in the agent outputs.** Your role is to synthesize, not to conduct new research or analysis.
             9.  **Address Limitations:** If the agent outputs consistently highlight significant limitations or caveats that are critical for the user to understand the scope or certainty of the findings, briefly and clearly include these in your summary.
 
             You will receive the combined input as a human message. Your task is to generate the final synthesized response based on that input.
+
+            ## Output Format Requirements
+            - The main narrative answer answering the user's query in detail.
+            - Optionally following the narrative, include a **Summary Table** section (Markdown table) that succinctly presents critical metrics or findings across agents.
+            - Ensure any table columns are clearly labeled and values are concise.
+            - Do not add any additional introductions beyond what is requested.
             '''
         )
             

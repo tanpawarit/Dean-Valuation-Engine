@@ -71,7 +71,7 @@ class FinancialStrengthAnalystAgent:
             - Use hierarchical formatting with clear headings  
             - Use paragraphs to organize information logically  
             - Include transitional phrases between subsections  
-            - no intro and conclusion
+            - At the end, include a **Summary** section that concisely synthesizes the key takeaways (bullet list or table). Do not include any other introduction.
 
             ### Content Quality:
             - Prioritize accuracy and clarity  
@@ -80,7 +80,7 @@ class FinancialStrengthAnalystAgent:
             - Maintain an objective, scholarly tone  
             - Avoid oversimplification of topics  
 
-            **Use only the most up-to-date sources as of {current_date}:** **Output no intros, no conclusions**
+            **Use only the most up-to-date sources as of {current_date}:** **Output all analytical sections followed by the Summary section—no additional introductions**
             '''
         )
 

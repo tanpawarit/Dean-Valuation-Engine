@@ -16,7 +16,7 @@ app = build_graph()
  
 # ========= RUN THE GRAPH ========= 
 # initial_query = "Analyze expected growth of UBER"   
-initial_query = "My SSN is 123-45-6789, analyze UBER growth"   
+initial_query = "analyze Uber moat and business model"   
  
 
 # Run the graph

@@ -41,10 +41,10 @@ class Planner:
             3.  **General Conversational Queries:**
                 a.  If the user query is a general greeting, a simple question not requiring financial analysis (e.g., "hi how are you", "what's your name?"), or seems unrelated to your financial analysis capabilities (i.e., does NOT require specialized agents like {specialized_agent_names_string}), create a single step plan.
                 b.  This single step should be assigned to the **GeneralAnalystAgent** ONLY. Do NOT include a SummarizerAgent for these types of queries.
-                c.  The task_description for this step should be the original user query, possibly with an instruction for the GeneralAnalystAgent to provide a polite response. For example: "User query: '{{user_input}}'. Provide a general acknowledgement and response."
+                c.  The task_description for this step should be the original user query, possibly with an instruction for the GeneralAnalystAgent to provide a polite response. For example: "User query: '{{user_input}}'."
             4.  **Analytics Task that is not fit for specialized agents:**
                 a.  This single step should be assigned to the **GeneralAnalystAgent** ONLY.
-                b.  The task_description for this step should be the original user query, possibly with an instruction for the GeneralAnalystAgent to provide a polite response. For example: "User query: '{{user_input}}'. Provide a general acknowledgement and response."
+                b.  The task_description for this step should be the original user query, possibly with an instruction for the GeneralAnalystAgent to provide a polite response. For example: "User query: '{{user_input}}'."
             5.  **Output Format:** Respond ONLY with a valid JSON list of objects as described below. Do not include any other text before or after the JSON.
                 Each object in the JSON list must have the following keys:
                 * "step_id": (integer) A sequential identifier for the step, starting from 1.

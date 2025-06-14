@@ -30,5 +30,11 @@ SPECIAIZE_AGENT_DESCRIPTIONS: dict[str, str] = {
         "* Tools: None (relies on text inputs from other agents).\n"
         "* Use when: This should typically be the **final step** in any plan that requires synthesizing information from "
         "multiple preceding analytical steps to provide a complete answer to the user."
+    ),
+    "MoatAnalystAgent": (
+        "* Expertise: Analyzes a company's economic moat, including definitions, current understanding, applications, "
+        "and relationships between relevant concepts.\n"
+        "* Tools: Search.\n"
+        "* Use when: Understanding a company's competitive advantage, barriers to entry, and sustainable competitive position is required."
     )
 } 
