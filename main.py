@@ -16,7 +16,7 @@ app = build_graph()
  
 # ========= RUN THE GRAPH ========= 
 # initial_query = "Analyze expected growth of UBER"   
-initial_query = "analyze Uber moat and business model"   
+initial_query = "analyze Uber business model and expected growth"   
  
 
 # Run the graph
