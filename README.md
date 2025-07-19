@@ -327,3 +327,25 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 *Developed by Pawarison Tanyu - A demonstration of advanced AI system design, LLM orchestration, and financial analysis capabilities.*
+
+This design is heavily inspired by and grounded in recent academic research in the field of Large Language Models and AI Agents.
+
+#### 1. Multi-Agent Orchestration
+
+Our core architecture, featuring a central orchestrator managing multiple expert agents, mirrors the conversational and collaborative paradigms proposed in leading research. This approach allows for greater modularity, scalability, and robustness in handling complex workflows. The "Chief of Staff" role is directly comparable to the manager agent concepts designed to facilitate sophisticated, multi-step problem-solving.
+
+> **Key Reference:**
+>
+> [**AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation**](https://arxiv.org/abs/2308.08155) (Wu, et al., 2023)
+>
+> *This paper provides the foundational concept for multi-agent conversational frameworks where agents collaborate to accomplish tasks, which is central to Dean's design.*
+
+#### 2. Domain-Specific Application in Finance
+
+While the multi-agent architecture is domain-agnostic, its application to the financial sector is a key objective of this project. The goal of automating financial analysis and company valuation using a team of AI agents is validated by emerging research that demonstrates the high potential of this approach for domain-specific problems. Dean Engine's mission aligns directly with the direction of creating autonomous financial analyst systems.
+
+> **Key Reference:**
+>
+> [**PIXIU: A Large Language Model-based Multi-agent Financial Analyst**](https://arxiv.org/abs/2311.13344) (Xie, et al., 2023)
+>
+> *This research specifically details a multi-agent system built for financial analysis, affirming the viability and relevance of applying this architecture to the complex tasks of valuation that Dean aims to solve.*
