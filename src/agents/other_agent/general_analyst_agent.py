@@ -1,22 +1,21 @@
 from datetime import datetime
+
+from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.chat_models import init_chat_model
-from langchain.agents import AgentExecutor, create_openai_functions_agent 
-from langchain_core.tools import BaseTool  
-from datetime import datetime
+from langchain_core.tools import BaseTool
 
 from src.tools.search_tools import search_tool
+from src.utils.openrouter_client import get_model_for_agent
 
 
 class GeneralAnalystAgent:
     def __init__(self) -> None:
-        self.general_llm: BaseChatModel = init_chat_model("openai:gpt-4.1", temperature=0.2)
+        self.general_llm: BaseChatModel = get_model_for_agent("general_analyst")
         self.general_tools: list[BaseTool] = [search_tool]
         current_date_str: str = datetime.now().strftime("%Y-%m-%d")
 
-        system_prompt: str = (
-            f'''
+        system_prompt: str = f"""
             You are highly skilled Investment Analyst expert in general financial analysis. 
             If you are not sure about any detail in the data sources, **use your tools** to fetch or read the latest data and do NOT guess or make up facts. 
             You **MUST plan extensively** before each section of your analysis, and reflect on outcomes of any tool call before moving on. 
@@ -46,17 +45,16 @@ class GeneralAnalystAgent:
             - Avoid oversimplification of topics  
 
             **Use only the most up-to-date sources as of {current_date_str}:** **Output no intros, no conclusions**
-            '''
-        ) 
-        self.general_react_prompt_template: ChatPromptTemplate = ChatPromptTemplate.from_messages([
-            ("system", system_prompt),
-            ("human", "{input}"),
-            MessagesPlaceholder(variable_name="agent_scratchpad"),
-        ])
-        self.general_step_agent = create_openai_functions_agent(
-            llm=self.general_llm,
-            tools=self.general_tools,
-            prompt=self.general_react_prompt_template
+            """
+        self.general_react_prompt_template: ChatPromptTemplate = ChatPromptTemplate.from_messages(
+            [
+                ("system", system_prompt),
+                ("human", "{input}"),
+                MessagesPlaceholder(variable_name="agent_scratchpad"),
+            ]
+        )
+        self.general_step_agent = create_openai_tools_agent(
+            llm=self.general_llm, tools=self.general_tools, prompt=self.general_react_prompt_template
         )
         self.general_step_agent_executor: AgentExecutor = AgentExecutor(
             agent=self.general_step_agent,
@@ -69,13 +67,14 @@ class GeneralAnalystAgent:
 
     def invoke(self, step_to_execute: str) -> dict[str, str]:
         try:
-            agent_response: dict = self.general_step_agent_executor.invoke({
-                "input": step_to_execute
-            })
-            output_content: str = agent_response.get('output', f"General React Agent did not produce a final output for: {step_to_execute}")
+            agent_response: dict = self.general_step_agent_executor.invoke({"input": step_to_execute})
+            output_content: str = agent_response.get(
+                "output", f"General React Agent did not produce a final output for: {step_to_execute}"
+            )
             return {"final_result": output_content}
-        except Exception as e: 
+        except Exception as e:
             return {"error_message": f"Error in GeneralAnalystAgent for task '{step_to_execute}': {e}"}
+
 
 def general_analyst_agent(step_to_execute: str) -> dict[str, str]:
     agent: GeneralAnalystAgent = GeneralAnalystAgent()

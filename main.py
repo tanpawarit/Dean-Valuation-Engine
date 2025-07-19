@@ -1,23 +1,23 @@
-from src.utils import load_app_config, setup_logging 
 from pathlib import Path
-import json
-from datetime import datetime
 
-load_app_config() # Load config and set ENV VARS FIRST
+from src.utils import load_app_config, setup_logging
+
+load_app_config()  # Load config and set ENV VARS FIRST
 setup_logging()
 
-from src.graph_nodes.graph_builder import build_graph 
+from src.graph_nodes.graph_builder import build_graph
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 # ========= CONSTRUCT THE GRAPH =========
-app = build_graph() 
- 
-# ========= RUN THE GRAPH ========= 
-# initial_query = "Analyze expected growth of UBER"   
-initial_query = "analyze Uber business model and expected growth"   
- 
+app = build_graph()
+
+# ========= RUN THE GRAPH =========
+# initial_query = "Analyze expected growth of UBER"
+initial_query = "analyze moat comparison of Uber and Lyft"
+# initial_query = "analyze moat of Uber"
+
 
 # Run the graph
 result = app.invoke({"original_query": initial_query})

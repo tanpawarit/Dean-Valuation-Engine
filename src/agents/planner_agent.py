@@ -1,12 +1,15 @@
-from langchain_openai import ChatOpenAI
-from langchain_core.output_parsers import JsonOutputParser
-from langchain_core.prompts import ChatPromptTemplate
 from datetime import datetime
-from src.utils.logger import get_logger
-from src.agents.constant import SPECIAIZE_AGENT_DESCRIPTIONS
 from typing import Any
 
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+
+from src.agents.constant import SPECIAIZE_AGENT_DESCRIPTIONS
+from src.utils.logger import get_logger
+from src.utils.openrouter_client import get_model_for_agent
+
 logger = get_logger(__name__)
+
 
 class Planner:
     def __init__(self) -> None:
@@ -15,13 +18,34 @@ class Planner:
         for i, (agent_name, description) in enumerate(SPECIAIZE_AGENT_DESCRIPTIONS.items()):
             agent_descriptions_string += f"{i + 1}.  **{agent_name}**:\n                {description}\n\n"
 
+        # Dynamically extract keywords from agent descriptions
+        keyword_mappings = {}
+        for agent_name, description in SPECIAIZE_AGENT_DESCRIPTIONS.items():
+            if agent_name not in ["GeneralAnalystAgent", "SummarizerAgent"]:
+                # Extract keywords from the description
+                keywords = []
+                if "* Keywords:" in description:
+                    keywords_section = description.split("* Keywords:")[1].split("\n")[0]
+                    keywords = [kw.strip() for kw in keywords_section.split(",") if kw.strip()]
+                keyword_mappings[agent_name] = keywords
+
+        # Build dynamic keyword triggers section
+        keyword_triggers_section = ""
+        for agent_name, keywords in keyword_mappings.items():
+            if keywords:
+                keyword_list = ", ".join(keywords)
+                keyword_triggers_section += f"**{agent_name} triggers:** {keyword_list}\n\n"
+
         # Dynamically generate the list of agent names for the prompt
         agent_names_list_string: str = ", ".join([f'"{name}"' for name in SPECIAIZE_AGENT_DESCRIPTIONS.keys()])
 
         # Dynamically generate the list of specialized agent names for the SummarizerAgent instruction
-        specialized_agent_names: list[str] = [name for name in SPECIAIZE_AGENT_DESCRIPTIONS.keys() if name not in ["GeneralAnalystAgent", "SummarizerAgent"]]
+        specialized_agent_names: list[str] = [
+            name
+            for name in SPECIAIZE_AGENT_DESCRIPTIONS.keys()
+            if name not in ["GeneralAnalystAgent", "SummarizerAgent"]
+        ]
         specialized_agent_names_string: str = ", ".join(specialized_agent_names)
-
 
         prompt_template_content = f"""You are a master financial analysis planner. Your goal is to break down a complex user request into a series of actionable, ordered steps.
             Each step must be assignable to one of the available specialized agents.
@@ -32,16 +56,29 @@ class Planner:
 
             **Instructions for Planning:**
             1.  **Understand the Request:** Carefully analyze the user's overall goal. Determine if the request is related to financial analysis or a general conversational query.
-            2.  **Specialized Analysis Requests:**
-                a.  **Break Down:** Decompose the specialized analysis request into logical sub-tasks.
-                b.  **Assign Agents:** For each sub-task, identify the most appropriate agent from the list above.
-                c.  **Order Tasks:** Ensure the tasks are in a logical sequence.
-                d.  **Be Specific:** Clearly define what each task should achieve.
-                e.  **Final Summary with SummarizerAgent:** If the plan involves ANY of the following specialized agents ({specialized_agent_names_string}), then the VERY FINAL step in the plan MUST be assigned to the **SummarizerAgent**. The SummarizerAgent will use the original query and all outputs from previous steps to generate a comprehensive final answer. This applies even if there's only one specialized step before the summary.
-            3.  **General Conversational Queries:**
-                a.  If the user query is a general greeting, a simple question not requiring financial analysis (e.g., "hi how are you", "what's your name?"), or seems unrelated to your financial analysis capabilities (i.e., does NOT require specialized agents like {specialized_agent_names_string}), create a single step plan.
-                b.  This single step should be assigned to the **GeneralAnalystAgent** ONLY. Do NOT include a SummarizerAgent for these types of queries.
-                c.  The task_description for this step should be the original user query, possibly with an instruction for the GeneralAnalystAgent to provide a polite response. For example: "User query: '{{user_input}}'."
+            
+            2.  **Dynamic Keyword-Based Agent Assignment:**
+                Before classifying as a general query, check for keywords from each specialized agent. Use the following keyword mappings:
+                
+{keyword_triggers_section}
+            
+            3.  **Specialized Analysis Requests:**
+                a.  **Keyword Match:** Scan the user query for keywords from any specialized agent's domain. If keywords are found, assign to the corresponding agent.
+                b.  **Context Analysis:** Even if keywords aren't an exact match, analyze the context to determine if the request falls within a specialized agent's expertise.
+                c.  **Broad Matching:** Consider partial keyword matches and synonyms. For example:
+                   - "business model", "business analysis", "business strategy" → BusinessAnalystAgent
+                   - "moat", "competitive advantage", "competitive position" → MoatAnalystAgent
+                   - "growth", "expansion", "development" → GrowthAnalystAgent
+                   - "financial", "balance sheet", "cash flow" → FinancialStrengthAnalystAgent
+                c.  **Break Down:** Decompose complex requests into logical sub-tasks.
+                d.  **Assign Agents:** For each sub-task, identify the most appropriate agent based on keywords and context.
+                e.  **Order Tasks:** Ensure tasks are in logical sequence.
+                f.  **Final Summary with SummarizerAgent:** If the plan involves ANY of the following specialized agents ({specialized_agent_names_string}), then the VERY FINAL step MUST be assigned to the **SummarizerAgent**.
+            
+            4.  **General Conversational Queries:**
+                a.  Only assign to **GeneralAnalystAgent** if NO keywords from specialized agents are detected AND the query is clearly general in nature.
+                b.  Examples of general queries: greetings, simple questions not requiring financial analysis, or queries unrelated to the specialized domains above.
+                c.  The task_description should be: "User query: '{{user_input}}'."
             4.  **Analytics Task that is not fit for specialized agents:**
                 a.  This single step should be assigned to the **GeneralAnalystAgent** ONLY.
                 b.  The task_description for this step should be the original user query, possibly with an instruction for the GeneralAnalystAgent to provide a polite response. For example: "User query: '{{user_input}}'."
@@ -56,20 +93,19 @@ class Planner:
             Based on the user query, provide your plan as a JSON list of objects:
         """
 
-        final_prompt_for_langchain: str = prompt_template_content.replace("{{current_date}}", "{current_date}").replace("{{user_input}}", "{user_input}")
+        final_prompt_for_langchain: str = prompt_template_content.replace("{{current_date}}", "{current_date}").replace(
+            "{{user_input}}", "{user_input}"
+        )
 
         self.prompt: ChatPromptTemplate = ChatPromptTemplate.from_template(final_prompt_for_langchain)
 
-        llm: ChatOpenAI = ChatOpenAI(model="gpt-4o", temperature=0)
+        llm = get_model_for_agent("planner")
         self.chain = self.prompt | llm | JsonOutputParser()
 
     def generate_plan(self, user_input: str) -> list[dict[str, Any]]:
         current_date: str = datetime.now().strftime("%Y-%m-%d")
         try:
-            plan: list[dict[str, Any]] = self.chain.invoke({
-                "user_input": user_input,
-                "current_date": current_date
-            })
+            plan: list[dict[str, Any]] = self.chain.invoke({"user_input": user_input, "current_date": current_date})
 
             if isinstance(plan, list):
                 if not plan:
@@ -87,8 +123,20 @@ class Planner:
                 return plan
             else:
                 logger.info(f"Planner output was not a list of dicts as expected: {plan}")
-                return [{"step_id": 1, "task_description": f"Planner error: Output was not a list. Original query: {user_input}", "assigned_agent": "GeneralAnalystAgent"}]
+                return [
+                    {
+                        "step_id": 1,
+                        "task_description": f"Planner error: Output was not a list. Original query: {user_input}",
+                        "assigned_agent": "GeneralAnalystAgent",
+                    }
+                ]
 
         except Exception as e:
             logger.info(f"Error generating plan: {e}")
-            return [{"step_id": 1, "task_description": f"Error in planning process. Original query: {user_input}", "assigned_agent": "GeneralAnalystAgent"}]
+            return [
+                {
+                    "step_id": 1,
+                    "task_description": f"Error in planning process. Original query: {user_input}",
+                    "assigned_agent": "GeneralAnalystAgent",
+                }
+            ]

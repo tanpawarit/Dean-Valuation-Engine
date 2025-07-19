@@ -1,22 +1,69 @@
-from src.agents.planner_agent import Planner
-from src.agents.other_agent.general_analyst_agent import GeneralAnalystAgent
-from src.agents.specialize_agent import BusinessAnalystAgent, FinancialStrengthAnalystAgent, GrowthAnalystAgent, SummarizerAgent, MoatAnalystAgent
-from typing import Any
+from functools import lru_cache
 
-planner_agent: Planner = Planner()
-general_analyst_agent: GeneralAnalystAgent = GeneralAnalystAgent()
-financial_strength_analyst_agent: FinancialStrengthAnalystAgent = FinancialStrengthAnalystAgent()
-business_analyst_agent: BusinessAnalystAgent = BusinessAnalystAgent()
-growth_analyst_agent: GrowthAnalystAgent = GrowthAnalystAgent()
-summarizer_agent: SummarizerAgent = SummarizerAgent()
-moat_analyst_agent: MoatAnalystAgent = MoatAnalystAgent()
 
-# Agent Registry specialized agents and others agents
-AGENT_REGISTRY: dict[str, Any] = {
-    "BusinessAnalystAgent": business_analyst_agent,
-    "FinancialStrengthAnalystAgent": financial_strength_analyst_agent,
-    "GrowthAnalystAgent": growth_analyst_agent,
-    "SummarizerAgent": summarizer_agent,
-    "GeneralAnalystAgent": general_analyst_agent,
-    "MoatAnalystAgent": moat_analyst_agent
+# Lazy loading agent registry
+class AgentRegistry:
+    """Lazy loading registry for agent instances."""
+
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def get_planner():
+        from src.agents.planner_agent import Planner
+
+        return Planner()
+
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def get_general_analyst():
+        from src.agents.other_agent.general_analyst_agent import GeneralAnalystAgent
+
+        return GeneralAnalystAgent()
+
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def get_business_analyst():
+        from src.agents.specialize_agent.business_analyst_agent import BusinessAnalystAgent
+
+        return BusinessAnalystAgent()
+
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def get_financial_strength_analyst():
+        from src.agents.specialize_agent.financial_strength_analyst_agent import FinancialStrengthAnalystAgent
+
+        return FinancialStrengthAnalystAgent()
+
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def get_growth_analyst():
+        from src.agents.specialize_agent.growth_analyst_agent import GrowthAnalystAgent
+
+        return GrowthAnalystAgent()
+
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def get_summarizer():
+        from src.agents.specialize_agent.summarizer_agent import SummarizerAgent
+
+        return SummarizerAgent()
+
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def get_moat_analyst():
+        from src.agents.specialize_agent.moat_analyst_agent import MoatAnalystAgent
+
+        return MoatAnalystAgent()
+
+
+# Agent Registry with lazy loading
+AGENT_REGISTRY = {
+    "BusinessAnalystAgent": lambda: AgentRegistry.get_business_analyst(),
+    "FinancialStrengthAnalystAgent": lambda: AgentRegistry.get_financial_strength_analyst(),
+    "GrowthAnalystAgent": lambda: AgentRegistry.get_growth_analyst(),
+    "SummarizerAgent": lambda: AgentRegistry.get_summarizer(),
+    "GeneralAnalystAgent": lambda: AgentRegistry.get_general_analyst(),
+    "MoatAnalystAgent": lambda: AgentRegistry.get_moat_analyst(),
 }
+
+# Planner agent (used separately)
+planner_agent = lambda: AgentRegistry.get_planner()

@@ -1,28 +1,41 @@
+from typing import Literal
 from src.graph_nodes.graph_state import PlanExecuteState
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def should_continue(state: PlanExecuteState) -> str:
-    error_msg = state.get("error_message")
-    if error_msg and isinstance(error_msg, str) and "Could not generate a valid plan" in error_msg:
-        logger.error("Critical error: Could not generate a valid plan. Ending.")
-        return "end_graph_error" # Special end node for critical planner failure
-    if error_msg: # If an executor step failed
-        logger.warning(f"Error encountered: {error_msg}. Considering replan or end.")
-        # Simple strategy: end on error. Could add a "replan" branch here.
-        return "end_graph_error" # Or a new node for error handling/replanning
+def should_continue(state: PlanExecuteState) -> Literal["executor_node", "end_graph_success", "end_graph_error"]:
+    """
+    Determine whether to continue execution, end successfully, or end with error.
     
-    current_step_idx = state["current_step_index"]
-    if current_step_idx >= len(state["plan"]):
-        logger.info("Plan complete.")
-        return "end_graph_success"
-    return "executor_node"
-
-def check_input_guardrail_result(state: PlanExecuteState) -> str:
-    """Determines the next step after input guardrails have been applied."""
+    Args:
+        state: The current state of the graph execution
+        
+    Returns:
+        String indicating the next step:
+        - "executor_node": Continue to next execution step
+        - "end_graph_success": Successfully complete the workflow
+        - "end_graph_error": End with error state
+    """
+    
+    plan = state.get("plan", [])
+    current_step_index = state.get("current_step_index", 0)
+    
+    # Check if we have more steps to execute
+    if current_step_index < len(plan):
+        logger.info(f"Continue execution: {len(plan) - current_step_index} steps remaining")
+        return "executor_node"
+    
+    # Check if we have any errors
     if state.get("error_message"):
-        logger.warning(f"Input guardrail failed: {state['error_message']}. Routing to error_node.")
-        return "error_node"  # Route to error_node if guardrail validation set an error
-    logger.info("Input guardrail passed. Routing to planner_node.")
-    return "planner_node"  # Proceed to planner if no error
+        logger.error(f"Workflow ending with error: {state['error_message']}")
+        return "end_graph_error"
+    
+    # Check if we have a final result (successful completion)
+    if state.get("final_result"):
+        logger.info("Workflow completed successfully with final result")
+        return "end_graph_success"
+    
+    # Default case - if no more steps and no final result, consider it success
+    logger.info("No more steps to execute, workflow completed")
+    return "end_graph_success"

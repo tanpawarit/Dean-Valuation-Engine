@@ -17,7 +17,7 @@ LOGGING_CONFIG = {
             "formatter": "standard",
             "level": "INFO",
             "stream": "ext://sys.stdout",
-        }, 
+        },
         # "file": {
         #     "class": "logging.FileHandler",
         #     "formatter": "standard",
@@ -32,11 +32,13 @@ LOGGING_CONFIG = {
     },
 }
 
+
 def setup_logging() -> None:
     """
     should be called once in entrypoint (e.g. main.py) to setup logging for the entire project
     """
     logging.config.dictConfig(LOGGING_CONFIG)
+
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """

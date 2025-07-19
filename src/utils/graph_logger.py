@@ -1,8 +1,9 @@
-import json
 import datetime
+import json
 import uuid
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -10,9 +11,11 @@ logger = get_logger(__name__)
 # Define the log file path at the project root
 LOG_FILE_PATH = Path("graph_execution_details.log")
 
+
 def generate_run_id() -> str:
     """Generates a unique run ID."""
     return uuid.uuid4().hex
+
 
 def _write_log(log_entry: Dict[str, Any]) -> None:
     """Helper function to write a log entry to the file."""
@@ -26,6 +29,7 @@ def _write_log(log_entry: Dict[str, Any]) -> None:
         logger.error(f"Error writing to log file {LOG_FILE_PATH}: {e}")
         logger.error(f"Log entry was: {log_entry}")
 
+
 def log_graph_start(run_id: str, initial_state: Dict[str, Any]) -> None:
     """Logs the start of a graph execution."""
     log_entry = {
@@ -35,6 +39,7 @@ def log_graph_start(run_id: str, initial_state: Dict[str, Any]) -> None:
         "initial_state": initial_state,
     }
     _write_log(log_entry)
+
 
 def log_node_execution(
     run_id: str,
@@ -58,6 +63,7 @@ def log_node_execution(
         "error": str(error) if error else None,
     }
     _write_log(log_entry)
+
 
 def log_graph_end(
     run_id: str,

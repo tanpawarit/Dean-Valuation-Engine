@@ -7,7 +7,7 @@ logger = get_logger(__name__)
 def planner_node(state: PlanExecuteState) -> PlanExecuteState:
     logger.info("--- PLANNER ---")
     query: str = state["original_query"]
-    plan = planner_agent.generate_plan(query)
+    plan = planner_agent().generate_plan(query)
     logger.info(f"Generated Plan: {plan}")
     return {
         "original_query": query,

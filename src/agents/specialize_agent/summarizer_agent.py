@@ -1,28 +1,28 @@
-import os
-from datetime import datetime
-from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.output_parsers import StrOutputParser
-from langchain_openai import ChatOpenAI
 from datetime import datetime
 from typing import TypedDict
+
+from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
 from src.utils.logger import get_logger
+from src.utils.openrouter_client import get_model_for_agent
 
 logger = get_logger(__name__)
+
 
 class StepOutput(TypedDict):
     step_id: str
     assigned_agent: str
     task_description: str
     output: str
- 
+
+
 class SummarizerAgent:
     def __init__(self) -> None:
         current_date_str: str = datetime.now().strftime("%Y-%m-%d")
 
-                
-        system_prompt_template = (
-            ''' 
+        system_prompt_template = """ 
             You are an expert Summarization Agent, skilled at transforming complex, multi-source information into a comprehensive, exhaustive, and highly detailed final answer for the user.
             Your primary task is to synthesize the outcomes of a multi-step analytical plan, based on an original user query and the outputs from various specialized agents that have worked on different aspects of the query.
 
@@ -55,21 +55,21 @@ class SummarizerAgent:
             Accuracy and Fidelity:
             - Ensure your summary accurately reflects the information and analysis provided in the agent outputs.
             - Critically, do not introduce any new information, data, analysis, or opinions that were not present in the agent outputs. Your role is to synthesize, not to conduct new research or analysis.
-            '''
-        )
-            
+            """
+
         formatted_system_prompt = system_prompt_template.format(current_date_str=current_date_str)
-        
-        self.prompt: ChatPromptTemplate = ChatPromptTemplate.from_messages([
-            ("system", formatted_system_prompt),
-            ("human", "{input}"),
-            MessagesPlaceholder(variable_name="agent_scratchpad"),
-        ])
- 
-        self.llm: BaseChatModel = ChatOpenAI(model="gpt-4o", temperature=0.1)
- 
+
+        self.prompt: ChatPromptTemplate = ChatPromptTemplate.from_messages(
+            [
+                ("system", formatted_system_prompt),
+                ("human", "{input}"),
+                MessagesPlaceholder(variable_name="agent_scratchpad"),
+            ]
+        )
+
+        self.llm: BaseChatModel = get_model_for_agent("summarizer")
+
         self.tools: list = []
- 
 
     def invoke(self, original_query: str, previous_steps_outputs: list[StepOutput]) -> dict[str, str]:
         formatted_previous_outputs: str = "\n\nPreviously Executed Steps and Outputs:\n"
@@ -90,14 +90,12 @@ class SummarizerAgent:
         try:
             chain = self.prompt | self.llm | StrOutputParser()
 
-            response_str: str = chain.invoke({
-                "input": combined_input_for_agent,
-                "agent_scratchpad": []
-            })
+            response_str: str = chain.invoke({"input": combined_input_for_agent, "agent_scratchpad": []})
             return {"final_result": response_str}
         except Exception as e:
             logger.error(f"Error in SummarizerAgent invoke: {e}")
             return {"final_result": f"Error summarizing results: {e}"}
+
 
 # def summarizer_agent_func(original_query: str, previous_steps_outputs: list[dict]) -> str:
 #     agent = SummarizerAgent()

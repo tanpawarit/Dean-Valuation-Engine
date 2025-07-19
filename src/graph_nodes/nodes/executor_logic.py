@@ -21,7 +21,8 @@ def executor_node(state: PlanExecuteState) -> dict[str, Any]:
     agent_name: str = current_step_details["assigned_agent"]
     logger.info(f"Executing Step {current_step_details['step_id']}: '{task_description}' with {agent_name}")
 
-    agent_to_execute: Any | None = AGENT_REGISTRY.get(agent_name)
+    agent_factory = AGENT_REGISTRY.get(agent_name)
+    agent_to_execute = agent_factory() if agent_factory else None
     
     # Initialize variables to store results for the current step
     step_output_content: Optional[dict[str, Any] | str] = None # Content of the output from the agent
