@@ -319,13 +319,6 @@ Understanding what the Dean's is doing and ensuring it operates responsibly are 
 
 ---
 
-<a id="license"></a>
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
 *Developed by Pawarison Tanyu - A demonstration of advanced AI system design, LLM orchestration, and financial analysis capabilities.*
 
 This design is heavily inspired by and grounded in recent academic research in the field of Large Language Models and AI Agents.
@@ -349,3 +342,12 @@ While the multi-agent architecture is domain-agnostic, its application to the fi
 > [**PIXIU: A Large Language Model-based Multi-agent Financial Analyst**](https://arxiv.org/abs/2311.13344) (Xie, et al., 2023)
 >
 > *This research specifically details a multi-agent system built for financial analysis, affirming the viability and relevance of applying this architecture to the complex tasks of valuation that Dean aims to solve.*
+
+---
+
+<a id="license"></a>
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
