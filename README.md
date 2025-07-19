@@ -333,16 +333,6 @@ Our core architecture, featuring a central orchestrator managing multiple expert
 >
 > *This paper provides the foundational concept for multi-agent conversational frameworks where agents collaborate to accomplish tasks, which is central to Dean's design.*
 
-#### 2. Domain-Specific Application in Finance
-
-While the multi-agent architecture is domain-agnostic, its application to the financial sector is a key objective of this project. The goal of automating financial analysis and company valuation using a team of AI agents is validated by emerging research that demonstrates the high potential of this approach for domain-specific problems. Dean Engine's mission aligns directly with the direction of creating autonomous financial analyst systems.
-
-> **Key Reference:**
->
-> [**PIXIU: A Large Language Model-based Multi-agent Financial Analyst**](https://arxiv.org/abs/2311.13344) (Xie, et al., 2023)
->
-> *This research specifically details a multi-agent system built for financial analysis, affirming the viability and relevance of applying this architecture to the complex tasks of valuation that Dean aims to solve.*
-
 ---
 
 <a id="license"></a>
