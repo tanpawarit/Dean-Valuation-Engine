@@ -1,4 +1,22 @@
-openai:
-  token: "xxx"
-serper:
-  token: "xxx" 
+openrouter:
+  api_key: "sk-or-v1-xxxxxxx"
+  base_url: "https://openrouter.ai/api/v1"
+  models:
+    # Default models for each agent type
+    planner: "mistralai/mistral-small-3.2-24b-instruct"
+    summarizer: "mistralai/mistral-small-3.2-24b-instruct"
+    general_analyst: "mistralai/mistral-small-3.2-24b-instruct"
+    business_analyst: "mistralai/mistral-small-3.2-24b-instruct"
+    financial_strength_analyst: "mistralai/mistral-small-3.2-24b-instruct"
+    moat_analyst: "mistralai/mistral-small-3.2-24b-instruct"
+    growth_analyst: "mistralai/mistral-small-3.2-24b-instruct"
+    
+    # Alternative models from different providers
+    alternatives:
+      fast: "anthropic/claude-3.5-sonnet"
+      reasoning: "openai/o1-mini"
+      cost_effective: "google/gemini-1.5-flash"
+      advanced: "anthropic/claude-3.5-sonnet"
+
+brave:
+  token: "xxxxxx"
