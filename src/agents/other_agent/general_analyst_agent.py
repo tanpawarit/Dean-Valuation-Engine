@@ -1,9 +1,11 @@
 from datetime import datetime
+from typing import Any
 
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import BaseTool
+from langchain_core.runnables import Runnable
 
 from src.tools.search_tools import search_tool
 from src.utils.openrouter_client import get_model_for_agent
@@ -53,7 +55,7 @@ class GeneralAnalystAgent:
                 MessagesPlaceholder(variable_name="agent_scratchpad"),
             ]
         )
-        self.general_step_agent = create_openai_tools_agent(
+        self.general_step_agent: Runnable[Any, Any] = create_openai_tools_agent(
             llm=self.general_llm, tools=self.general_tools, prompt=self.general_react_prompt_template
         )
         self.general_step_agent_executor: AgentExecutor = AgentExecutor(
@@ -67,10 +69,12 @@ class GeneralAnalystAgent:
 
     def invoke(self, step_to_execute: str) -> dict[str, str]:
         try:
-            agent_response: dict = self.general_step_agent_executor.invoke({"input": step_to_execute})
-            output_content: str = agent_response.get(
+            agent_response: dict[str, Any] = self.general_step_agent_executor.invoke({"input": step_to_execute})
+            output_content = agent_response.get(
                 "output", f"General React Agent did not produce a final output for: {step_to_execute}"
             )
+            if not isinstance(output_content, str):
+                output_content = str(output_content)
             return {"final_result": output_content}
         except Exception as e:
             return {"error_message": f"Error in GeneralAnalystAgent for task '{step_to_execute}': {e}"}

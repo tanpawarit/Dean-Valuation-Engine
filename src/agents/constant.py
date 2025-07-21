@@ -1,56 +1,132 @@
-SPECIAIZE_AGENT_DESCRIPTIONS: dict[str, str] = {
-    "GeneralAnalystAgent": (
-        "* Expertise: Provides comprehensive and insightful general financial analysis. Can answer broad questions, "
-        "perform initial research, summarize findings, and interpret data.\n"
-        "* Tools: Search.\n"
-        "* Use when: General financial questions, initial data gathering, or tasks not fitting other specialists."
+from pydantic import BaseModel
+
+
+class AgentDescription(BaseModel):
+    expertise: str
+    tools: str
+    use_when: str
+    keywords: list[str] = []
+
+
+SPECIAIZE_AGENT_DESCRIPTIONS: dict[str, AgentDescription] = {
+    "GeneralAnalystAgent": AgentDescription(
+        expertise="Provides comprehensive and insightful general financial analysis. Can answer broad questions, perform initial research, summarize findings, and interpret data.",
+        tools="Search.",
+        use_when="General financial questions, initial data gathering, or tasks not fitting other specialists.",
+        keywords=[],
     ),
-    "FinancialStrengthAnalystAgent": (
-        "* Expertise: Deep dives into financial strength analysis. Focuses on Debt-to-Equity (D/E), "
-        "Current/Quick Ratios, Free Cash Flow (FCF), and FCF Margin.\n"
-        "* Tools: Search.\n"
-        "* Use when: Detailed analysis of a company's financial leverage, liquidity, and cash flow generation capabilities is required.\n"
-        "* Keywords: financial strength, debt-to-equity, D/E ratio, debt ratio, liquidity, cash flow, free cash flow, FCF, "
-        "current ratio, quick ratio, leverage, solvency, balance sheet strength, financial health, financial metrics"
+    "FinancialStrengthAnalystAgent": AgentDescription(
+        expertise="Deep dives into financial strength analysis. Focuses on Debt-to-Equity (D/E), Current/Quick Ratios, Free Cash Flow (FCF), and FCF Margin.",
+        tools="Search.",
+        use_when="Detailed analysis of a company's financial leverage, liquidity, and cash flow generation capabilities is required.",
+        keywords=[
+            "financial strength",
+            "debt-to-equity",
+            "D/E ratio",
+            "debt ratio",
+            "liquidity",
+            "cash flow",
+            "free cash flow",
+            "FCF",
+            "current ratio",
+            "quick ratio",
+            "leverage",
+            "solvency",
+            "balance sheet strength",
+            "financial health",
+            "financial metrics",
+        ],
     ),
-    "BusinessAnalystAgent": (
-        "* Expertise: Analyzes business models, revenue breakdowns, revenue consistency, "
-        "business categories (Growth vs. Defensive), and market sizing (TAM, SAM, SOM).\n"
-        "* Tools: Search.\n"
-        "* Use when: Understanding a company's core operations, revenue streams, market position, and growth potential is required.\n"
-        "* Keywords: business model, revenue breakdown, revenue streams, market sizing, TAM, SAM, SOM, market analysis, "
-        "core operations, business strategy, market position, competitive positioning, market opportunity, total addressable market"
+    "BusinessAnalystAgent": AgentDescription(
+        expertise="Analyzes business models, revenue breakdowns, revenue consistency, business categories (Growth vs. Defensive), and market sizing (TAM, SAM, SOM).",
+        tools="Search.",
+        use_when="Understanding a company's core operations, revenue streams, market position, and growth potential is required.",
+        keywords=[
+            "business model",
+            "revenue breakdown",
+            "revenue streams",
+            "market sizing",
+            "TAM",
+            "SAM",
+            "SOM",
+            "market analysis",
+            "core operations",
+            "business strategy",
+            "market position",
+            "competitive positioning",
+            "market opportunity",
+            "total addressable market",
+        ],
     ),
-    "GrowthAnalystAgent": (
-        "* Expertise: Analyzes growth metrics, including Revenue CAGR, EPS Growth, and FCF Growth. "
-        "Focuses on evaluating the quality of earnings and the company's reinvestment strategies.\n"
-        "* Tools: Search.\n"
-        "* Use when: Detailed analysis of a company's growth potential is required.\n"
-        "* Keywords: growth analysis, growth potential, CAGR, revenue growth, EPS growth, earnings growth, "
-        "FCF growth, growth metrics, expansion rate, growth drivers, growth strategy, growth forecast"
+    "GrowthAnalystAgent": AgentDescription(
+        expertise="Analyzes growth metrics, including Revenue CAGR, EPS Growth, and FCF Growth. Focuses on evaluating the quality of earnings and the company's reinvestment strategies.",
+        tools="Search.",
+        use_when="Detailed analysis of a company's growth potential is required.",
+        keywords=[
+            "growth analysis",
+            "growth potential",
+            "CAGR",
+            "revenue growth",
+            "EPS growth",
+            "earnings growth",
+            "FCF growth",
+            "growth metrics",
+            "expansion rate",
+            "growth drivers",
+            "growth strategy",
+            "growth forecast",
+        ],
     ),
-    "SummarizerAgent": (
-        "* Expertise: Combines and synthesizes results from specialized agents to create a coherent and comprehensive final answer "
-        "for the user, based on the original user query and the collected agent outputs.\n"
-        "* Tools: None (relies on text inputs from other agents).\n"
-        "* Use when: This should typically be the **final step** in any plan that requires synthesizing information from "
-        "multiple preceding analytical steps to provide a complete answer to the user."
+    "SummarizerAgent": AgentDescription(
+        expertise="Combines and synthesizes results from specialized agents to create a coherent and comprehensive final answer for the user, based on the original user query and the collected agent outputs.",
+        tools="None (relies on text inputs from other agents).",
+        use_when="This should typically be the **final step** in any plan that requires synthesizing information from multiple preceding analytical steps to provide a complete answer to the user.",
+        keywords=[],
     ),
-    "MoatAnalystAgent": (
-        "* Expertise: Analyzes a company's economic moat, including definitions, current understanding, applications, "
-        "and relationships between relevant concepts.\n"
-        "* Tools: Search.\n"
-        "* Use when: Understanding a company's competitive advantage, barriers to entry, and sustainable competitive position is required.\n"
-        "* Keywords: moat, economic moat, competitive advantage, competitive edge, barriers to entry, sustainable advantage, "
-        "competitive position, competitive moat, competitive analysis, competitive landscape, defensive moat, competitive strength"
+    "MoatAnalystAgent": AgentDescription(
+        expertise="Analyzes a company's economic moat, including definitions, current understanding, applications, and relationships between relevant concepts.",
+        tools="Search.",
+        use_when="Understanding a company's competitive advantage, barriers to entry, and sustainable competitive position is required.",
+        keywords=[
+            "moat",
+            "economic moat",
+            "competitive advantage",
+            "competitive edge",
+            "barriers to entry",
+            "sustainable advantage",
+            "competitive position",
+            "competitive moat",
+            "competitive analysis",
+            "competitive landscape",
+            "defensive moat",
+            "competitive strength",
+        ],
     ),
-    "ProfitabilityAnalystAgent": (
-        "* Expertise: Analyzes company profitability and operational efficiency. Focuses on Gross Margin, Operating Margin, "
-        "Net Profit Margin, EBITDA, ROE, ROA, ROIC, and industry-specific profitability benchmarks.\n"
-        "* Tools: Search.\n"
-        "* Use when: Detailed analysis of a company's ability to convert revenue to profit, margin trends, and profitability sustainability is required.\n"
-        "* Keywords: profitability, profit margin, gross margin, operating margin, net profit margin, EBITDA, ROE, ROA, ROIC, "
-        "return on equity, return on assets, return on invested capital, operational efficiency, margin analysis, earnings quality, "
-        "profit trends, cost control, expense management, profitability benchmarks, margin sustainability"
+    "ProfitabilityAnalystAgent": AgentDescription(
+        expertise="Analyzes company profitability and operational efficiency. Focuses on Gross Margin, Operating Margin, Net Profit Margin, EBITDA, ROE, ROA, ROIC, and industry-specific profitability benchmarks.",
+        tools="Search.",
+        use_when="Detailed analysis of a company's ability to convert revenue to profit, margin trends, and profitability sustainability is required.",
+        keywords=[
+            "profitability",
+            "profit margin",
+            "gross margin",
+            "operating margin",
+            "net profit margin",
+            "EBITDA",
+            "ROE",
+            "ROA",
+            "ROIC",
+            "return on equity",
+            "return on assets",
+            "return on invested capital",
+            "operational efficiency",
+            "margin analysis",
+            "earnings quality",
+            "profit trends",
+            "cost control",
+            "expense management",
+            "profitability benchmarks",
+            "margin sustainability",
+        ],
     ),
 }

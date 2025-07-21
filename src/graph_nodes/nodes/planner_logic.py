@@ -1,3 +1,4 @@
+from typing import cast
 from src.graph_nodes.graph_state import PlanExecuteState
 from src.agents.registry import planner_agent
 from src.utils.logger import get_logger
@@ -22,10 +23,10 @@ def planner_node(state: PlanExecuteState) -> PlanExecuteState:
     
     # Save checkpoint if checkpoint manager is available
     try:
-        from src.graph_nodes.graph_builder import get_checkpoint_manager
+        from src.utils.checkpoint_registry import get_checkpoint_manager
         checkpoint_manager = get_checkpoint_manager()
         if checkpoint_manager:
-            success = checkpoint_manager.save_checkpoint(new_state, "planner")
+            success = checkpoint_manager.save_checkpoint(cast(PlanExecuteState, new_state), "planner")
             if success:
                 logger.debug("Planner state checkpointed")
             else:
@@ -35,4 +36,4 @@ def planner_node(state: PlanExecuteState) -> PlanExecuteState:
     except Exception as e:
         logger.warning(f"Checkpoint error in planner: {e}")
     
-    return new_state
+    return cast(PlanExecuteState, new_state)

@@ -1,5 +1,4 @@
 from src.graph_nodes.graph_state import PlanExecuteState
-from typing import Optional
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -21,7 +20,7 @@ def handle_success_node(state: PlanExecuteState) -> dict[str, str]:
     Handles the state update for the success_node.
     Sets the final_result based on what's in the state, or a default success message.
     '''
-    final_result: Optional[str] = state.get('final_result')
+    final_result: str | None = state.get('final_result')
     if final_result:
         logger.info(f'--- SUCCESS NODE: Plan finished. Final Result: {str(final_result)[:200]}... ---')
         return {'final_result': final_result}

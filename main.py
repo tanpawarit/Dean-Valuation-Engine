@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 
 # ========= CONFIGURATION =========
 checkpoint_config = get_checkpoint_config()
-enable_checkpoints = checkpoint_config.get('enabled', False)
+enable_checkpoints = checkpoint_config.get("enabled", False)
 
 logger.info(f"Checkpointing {'enabled' if enable_checkpoints else 'disabled'}")
 
@@ -20,7 +20,7 @@ logger.info(f"Checkpointing {'enabled' if enable_checkpoints else 'disabled'}")
 if enable_checkpoints:
     # Build graph with recovery capabilities
     app, recovered_state = build_graph_with_recovery()
-    
+
     if recovered_state:
         logger.info("Using recovered state from previous run")
         initial_state = recovered_state
@@ -49,7 +49,11 @@ else:
 content_to_save_to_file: str | None = None
 if isinstance(result, dict):
     # Prefer the 'final_result' key; fallback to full dict string
-    content_to_save_to_file = result.get("final_result", str(result))
+    final_result = result.get("final_result")
+    if isinstance(final_result, str):
+        content_to_save_to_file = final_result
+    else:
+        content_to_save_to_file = str(result)
 elif isinstance(result, str):
     content_to_save_to_file = result
 else:

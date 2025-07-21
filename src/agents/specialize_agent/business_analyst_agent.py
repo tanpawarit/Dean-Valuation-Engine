@@ -1,9 +1,11 @@
 from datetime import datetime
+from typing import Any
 
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import BaseTool
+from langchain_core.runnables import Runnable
 
 from src.tools.search_tools import search_tool
 from src.utils.logger import get_logger
@@ -14,7 +16,7 @@ logger = get_logger(__name__)
 
 class BusinessAnalystAgent:
     def __init__(self) -> None:
-        self.template_str = """
+        self.template_str: str = """
             You are **Business Analyst** expert in business-model and market-sizing analysis.
             If you are not sure about any detail in the data sources, **use your tools** to fetch or read the latest data and do NOT guess or make up facts.
             You **MUST plan extensively** before each section of your analysis, and reflect on outcomes of any tool call before moving on.
@@ -110,7 +112,7 @@ class BusinessAnalystAgent:
 
         self.tools: list[BaseTool] = [search_tool]
 
-        self.agent = create_openai_tools_agent(llm=self.model, tools=self.tools, prompt=self.agent_prompt_template)
+        self.agent: Runnable[Any, Any] = create_openai_tools_agent(llm=self.model, tools=self.tools, prompt=self.agent_prompt_template)
 
         self.business_analyst_executor: AgentExecutor = AgentExecutor(
             agent=self.agent,
@@ -123,7 +125,7 @@ class BusinessAnalystAgent:
 
     def invoke(self, task_detail: str) -> dict[str, str]:
         try:
-            response_dict: dict = self.business_analyst_executor.invoke({"input": task_detail})
+            response_dict: dict[str, Any] = self.business_analyst_executor.invoke({"input": task_detail})
             output = response_dict.get("output")
             if output:
                 return {"final_result": output}

@@ -4,21 +4,28 @@ Provides a drop-in replacement for ChatOpenAI with multi-model support.
 """
 
 import os
-from typing import Any, Dict, Optional
+from typing import TypedDict, cast
 
 from langchain_openai import ChatOpenAI
+from pydantic import SecretStr
 
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 
+class OpenRouterConfig(TypedDict, total=False):
+    """Type definition for OpenRouter configuration section."""
+
+    api_key: str
+    models: dict[str, str]
+
+
 def OpenRouterChat(
     model: str = "openai/gpt-4o",
     temperature: float = 0.1,
-    max_tokens: Optional[int] = None,
-    openrouter_api_key: Optional[str] = None,
-    **kwargs: Any,
+    max_tokens: int | None = None,
+    openrouter_api_key: str | None = None,
 ) -> ChatOpenAI:
     """
     OpenRouter-compatible chat model factory.
@@ -39,21 +46,30 @@ def OpenRouterChat(
     if not api_key:
         raise ValueError(
             "OpenRouter API key not found. Set OPENROUTER_API_KEY environment variable "
-            "or provide openrouter_api_key parameter."
+            + "or provide openrouter_api_key parameter."
         )
 
-    return ChatOpenAI(
-        model=model,
-        temperature=temperature,
-        max_tokens=max_tokens,  # type: ignore
-        api_key=api_key,
-        base_url="https://openrouter.ai/api/v1",
-        default_headers={"HTTP-Referer": "http://localhost:3000", "X-Title": "Dean Valuation Engine"},
-        **kwargs,
-    )
+    # Create ChatOpenAI instance directly with typed parameters
+    if max_tokens is not None:
+        return ChatOpenAI(
+            model=model,
+            temperature=temperature,
+            api_key=SecretStr(api_key),
+            base_url="https://openrouter.ai/api/v1",
+            default_headers={"HTTP-Referer": "http://localhost:3000", "X-Title": "Dean Valuation Engine"},
+            max_completion_tokens=max_tokens,
+        )
+    else:
+        return ChatOpenAI(
+            model=model,
+            temperature=temperature,
+            api_key=SecretStr(api_key),
+            base_url="https://openrouter.ai/api/v1",
+            default_headers={"HTTP-Referer": "http://localhost:3000", "X-Title": "Dean Valuation Engine"},
+        )
 
 
-def get_model_for_agent(agent_type: str, config: Optional[Dict[str, Any]] = None) -> ChatOpenAI:
+def get_model_for_agent(agent_type: str, config: dict[str, object] | None = None) -> ChatOpenAI:
     """
     Get the appropriate OpenRouter model for a specific agent type.
 
@@ -69,7 +85,7 @@ def get_model_for_agent(agent_type: str, config: Optional[Dict[str, Any]] = None
 
         config = get_config()
 
-    openrouter_config = config.get("openrouter", {})
+    openrouter_config = cast(OpenRouterConfig, config.get("openrouter", {}))
     models = openrouter_config.get("models", {})
 
     # Get model name for agent type

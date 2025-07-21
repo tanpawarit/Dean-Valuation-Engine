@@ -69,7 +69,7 @@ class SummarizerAgent:
 
         self.llm: BaseChatModel = get_model_for_agent("summarizer")
 
-        self.tools: list = []
+        self.tools: list[str] = []
 
     def invoke(self, original_query: str, previous_steps_outputs: list[StepOutput]) -> dict[str, str]:
         formatted_previous_outputs: str = "\n\nPreviously Executed Steps and Outputs:\n"

@@ -1,22 +1,22 @@
 
-from typing import List, Optional, Literal, Any
+from typing import Literal, cast
 from src.agents.registry import AGENT_REGISTRY
-from src.graph_nodes.graph_state import PlanExecuteState
+from src.graph_nodes.graph_state import PlanExecuteState, PlanStep, ExecutedStep
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def executor_node(state: PlanExecuteState) -> dict[str, Any]:  
+def executor_node(state: PlanExecuteState) -> dict[str, object]:  
     logger.info("--- EXECUTOR ---")
-    plan: List[dict] = state["plan"]
+    plan: list[PlanStep] = state["plan"]
     current_step_idx: int = state["current_step_index"]
-    executed_steps_history: List[dict] = state["executed_steps"]
+    executed_steps_history: list[ExecutedStep] = state["executed_steps"]
 
     if current_step_idx >= len(plan):
         logger.info("Execution complete, no more steps in the plan.") 
         return {"error_message": "Execution attempted beyond plan length."}
 
-    current_step_details: dict = plan[current_step_idx]
+    current_step_details: PlanStep = plan[current_step_idx]
     task_description: str = current_step_details["task_description"]
     agent_name: str = current_step_details["assigned_agent"]
     logger.info(f"Executing Step {current_step_details['step_id']}: '{task_description}' with {agent_name}")
@@ -25,13 +25,13 @@ def executor_node(state: PlanExecuteState) -> dict[str, Any]:
     agent_to_execute = agent_factory() if agent_factory else None
     
     # Initialize variables to store results for the current step
-    step_output_content: Optional[dict[str, Any] | str] = None # Content of the output from the agent
+    step_output_content: dict[str, object] | str | None = None # Content of the output from the agent
     step_status: Literal["pending", "success", "error"] = "pending" # Will be 'success' or 'error'
-    error_message_for_state: Optional[str] = None # Error message to be put into state.error_message if this step fails
+    error_message_for_state: str | None = None # Error message to be put into state.error_message if this step fails
     
     # Initialize new_final_result with the current value from the state.
     # This variable will hold the potential new final_result if SummarizerAgent runs.
-    new_final_result: Optional[str] = state.get("final_result")
+    new_final_result: str | None = state.get("final_result")
 
     if not agent_to_execute:
         logger.error(f"Error: Agent '{agent_name}' not found.")
@@ -91,7 +91,7 @@ def executor_node(state: PlanExecuteState) -> dict[str, Any]:
     updated_executed_steps = executed_steps_history + [current_step_result_for_history]
     
     # Prepare the dictionary with only the changed parts of the state for returning 
-    return_payload: dict[str, Any] = {
+    return_payload: dict[str, object] = {
         "executed_steps": updated_executed_steps,
         "current_step_index": current_step_idx + 1,
         "error_message": error_message_for_state, # This will be the error message from this step or None
@@ -102,14 +102,15 @@ def executor_node(state: PlanExecuteState) -> dict[str, Any]:
     if new_final_result != state.get("final_result"):
         return_payload["final_result"] = new_final_result
     
-    # Save checkpoint after each step execution
+    # Save checkpoint after each step execution  
     try:
-        from src.graph_nodes.graph_builder import get_checkpoint_manager
+        # Import from centralized registry to avoid circular dependency
+        from src.utils.checkpoint_registry import get_checkpoint_manager
         checkpoint_manager = get_checkpoint_manager()
         if checkpoint_manager:
             # Merge current state with updates for checkpointing
             checkpoint_state = {**state, **return_payload}
-            success = checkpoint_manager.save_checkpoint(checkpoint_state, "current")
+            success = checkpoint_manager.save_checkpoint(cast(PlanExecuteState, checkpoint_state), "current")
             if success:
                 logger.debug(f"Executor state checkpointed after step {current_step_idx + 1}")
             else:

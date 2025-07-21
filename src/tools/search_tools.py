@@ -1,6 +1,6 @@
 import os
 import time
-from typing import Any, Optional
+from typing import Any
 
 import requests
 from langchain_core.tools import tool
@@ -40,7 +40,7 @@ def extract_search_results(search_response: dict[str, Any]) -> list[dict[str, An
 
 
 @tool("search_with_brave", parse_docstring=True)
-def search_tool(query: str, api_key: Optional[str] = None) -> list[dict[str, Any]]:
+def search_tool(query: str, api_key: str | None = None) -> list[dict[str, Any]]:
     """
     Perform a web search using the Brave Search API.
 

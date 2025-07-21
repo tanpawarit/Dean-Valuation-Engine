@@ -3,6 +3,7 @@ from typing import Any
 
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableSerializable
 
 from src.agents.constant import SPECIAIZE_AGENT_DESCRIPTIONS
 from src.utils.logger import get_logger
@@ -22,11 +23,8 @@ class Planner:
         keyword_mappings = {}
         for agent_name, description in SPECIAIZE_AGENT_DESCRIPTIONS.items():
             if agent_name not in ["GeneralAnalystAgent", "SummarizerAgent"]:
-                # Extract keywords from the description
-                keywords = []
-                if "* Keywords:" in description:
-                    keywords_section = description.split("* Keywords:")[1].split("\n")[0]
-                    keywords = [kw.strip() for kw in keywords_section.split(",") if kw.strip()]
+                # Extract keywords from the AgentDescription object
+                keywords = description.keywords if hasattr(description, "keywords") else []
                 keyword_mappings[agent_name] = keywords
 
         # Build dynamic keyword triggers section
@@ -100,7 +98,7 @@ class Planner:
         self.prompt: ChatPromptTemplate = ChatPromptTemplate.from_template(final_prompt_for_langchain)
 
         llm = get_model_for_agent("planner")
-        self.chain = self.prompt | llm | JsonOutputParser()
+        self.chain: RunnableSerializable[dict[str, Any], list[dict[str, Any]]] = self.prompt | llm | JsonOutputParser()
 
     def generate_plan(self, user_input: str) -> list[dict[str, Any]]:
         current_date: str = datetime.now().strftime("%Y-%m-%d")
