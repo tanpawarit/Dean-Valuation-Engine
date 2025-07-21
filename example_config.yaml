@@ -10,6 +10,7 @@ openrouter:
     financial_strength_analyst: "mistralai/mistral-small-3.2-24b-instruct"
     moat_analyst: "mistralai/mistral-small-3.2-24b-instruct"
     growth_analyst: "mistralai/mistral-small-3.2-24b-instruct"
+    profitability_analyst: "mistralai/mistral-small-3.2-24b-instruct"
     
     # Alternative models from different providers
     alternatives:

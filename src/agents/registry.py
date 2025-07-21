@@ -54,6 +54,13 @@ class AgentRegistry:
 
         return MoatAnalystAgent()
 
+    @staticmethod
+    @lru_cache(maxsize=1)
+    def get_profitability_analyst():
+        from src.agents.specialize_agent.profitability_analyst_agent import ProfitabilityAnalystAgent
+
+        return ProfitabilityAnalystAgent()
+
 
 # Agent Registry with lazy loading
 AGENT_REGISTRY = {
@@ -63,7 +70,9 @@ AGENT_REGISTRY = {
     "SummarizerAgent": lambda: AgentRegistry.get_summarizer(),
     "GeneralAnalystAgent": lambda: AgentRegistry.get_general_analyst(),
     "MoatAnalystAgent": lambda: AgentRegistry.get_moat_analyst(),
+    "ProfitabilityAnalystAgent": lambda: AgentRegistry.get_profitability_analyst(),
 }
+
 
 # Planner agent (used separately)
 def planner_agent():

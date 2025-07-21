@@ -3,11 +3,13 @@ from src.agents.specialize_agent.financial_strength_analyst_agent import Financi
 from src.agents.specialize_agent.growth_analyst_agent import GrowthAnalystAgent
 from src.agents.specialize_agent.summarizer_agent import SummarizerAgent
 from src.agents.specialize_agent.moat_analyst_agent import MoatAnalystAgent
+from src.agents.specialize_agent.profitability_analyst_agent import ProfitabilityAnalystAgent
 
 __all__: list[str] = [
     "BusinessAnalystAgent",
     "FinancialStrengthAnalystAgent",
     "GrowthAnalystAgent",
     "SummarizerAgent",
-    "MoatAnalystAgent"
+    "MoatAnalystAgent",
+    "ProfitabilityAnalystAgent",
 ]

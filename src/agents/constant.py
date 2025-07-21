@@ -44,4 +44,13 @@ SPECIAIZE_AGENT_DESCRIPTIONS: dict[str, str] = {
         "* Keywords: moat, economic moat, competitive advantage, competitive edge, barriers to entry, sustainable advantage, "
         "competitive position, competitive moat, competitive analysis, competitive landscape, defensive moat, competitive strength"
     ),
+    "ProfitabilityAnalystAgent": (
+        "* Expertise: Analyzes company profitability and operational efficiency. Focuses on Gross Margin, Operating Margin, "
+        "Net Profit Margin, EBITDA, ROE, ROA, ROIC, and industry-specific profitability benchmarks.\n"
+        "* Tools: Search.\n"
+        "* Use when: Detailed analysis of a company's ability to convert revenue to profit, margin trends, and profitability sustainability is required.\n"
+        "* Keywords: profitability, profit margin, gross margin, operating margin, net profit margin, EBITDA, ROE, ROA, ROIC, "
+        "return on equity, return on assets, return on invested capital, operational efficiency, margin analysis, earnings quality, "
+        "profit trends, cost control, expense management, profitability benchmarks, margin sustainability"
+    ),
 }

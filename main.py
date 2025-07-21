@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from src.utils import load_app_config, setup_logging
 from src.graph_nodes.graph_builder import build_graph
+from src.utils import load_app_config, setup_logging
 from src.utils.logger import get_logger
 
 load_app_config()  # Load config and set ENV VARS FIRST
@@ -14,8 +14,8 @@ app = build_graph()
 
 # ========= RUN THE GRAPH =========
 # initial_query = "Analyze expected growth of UBER"
-initial_query = "analyze moat comparison of Uber and Lyft"
-# initial_query = "analyze moat of Uber"
+# initial_query = "analyze moat comparison of Uber and Lyft"
+initial_query = "analyze profitability of Uber"
 
 
 # Run the graph
