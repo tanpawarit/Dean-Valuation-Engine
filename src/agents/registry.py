@@ -66,4 +66,5 @@ AGENT_REGISTRY = {
 }
 
 # Planner agent (used separately)
-planner_agent = lambda: AgentRegistry.get_planner()
+def planner_agent():
+    return AgentRegistry.get_planner()

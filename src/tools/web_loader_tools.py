@@ -25,7 +25,7 @@ def scrape_webpages_tool(urls: List[str]) -> Dict[str, str]:
             result = urlparse(url)
             if all([result.scheme, result.netloc]):
                 valid_urls.append(url)
-        except Exception:
+        except (ValueError, AttributeError):
             continue
             
     if not valid_urls:
@@ -48,6 +48,8 @@ def scrape_webpages_tool(urls: List[str]) -> Dict[str, str]:
         }
     except RequestException as e:
         raise RequestException(f"Failed to fetch content: {str(e)}")
+    except ValueError as e:
+        raise ValueError(f"Invalid data encountered while scraping: {str(e)}")
     except Exception as e:
-        raise Exception(f"An error occurred while scraping: {str(e)}")
+        raise RuntimeError(f"An unexpected error occurred while scraping: {str(e)}")
  

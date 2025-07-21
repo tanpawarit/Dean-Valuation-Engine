@@ -29,7 +29,7 @@ include = ["src", "main.py"]
 reportMissingImports = "warning"
 reportUnknownParameterType = "warning"
 
-[tool.pyright.executionEnvironments]
+[[tool.pyright.executionEnvironments]]
 root = "."
 
 [project.optional-dependencies]

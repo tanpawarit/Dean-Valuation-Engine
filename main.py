@@ -1,12 +1,11 @@
 from pathlib import Path
 
 from src.utils import load_app_config, setup_logging
+from src.graph_nodes.graph_builder import build_graph
+from src.utils.logger import get_logger
 
 load_app_config()  # Load config and set ENV VARS FIRST
 setup_logging()
-
-from src.graph_nodes.graph_builder import build_graph
-from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 

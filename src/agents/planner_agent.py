@@ -110,10 +110,10 @@ class Planner:
             if isinstance(plan, list):
                 if not plan:
                     # handle empty plan with fallback or none
-                    pass  # ถ้า plan ว่าง และ prompt ควรจะจัดการได้แล้ว ก็ปล่อยให้เป็น list ว่างได้
+                    pass  # If plan is empty and prompt should handle it, allow empty list
 
                 required_keys: list[str] = ["step_id", "task_description", "assigned_agent"]
-                for step_idx, step in enumerate(plan):  # เพิ่ม step_idx สำหรับ error message
+                for step_idx, step in enumerate(plan):  # Add step_idx for error messages
                     if not isinstance(step, dict):
                         logger.info(f"Planner output step {step_idx + 1} is not a dictionary: {step}")
                         raise ValueError(f"Invalid plan structure: step {step_idx + 1} is not a dictionary.")

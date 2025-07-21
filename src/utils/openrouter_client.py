@@ -45,15 +45,15 @@ def OpenRouterChat(
     return ChatOpenAI(
         model=model,
         temperature=temperature,
-        max_tokens=max_tokens,
-        openai_api_key=api_key,
-        openai_api_base="https://openrouter.ai/api/v1",
+        max_tokens=max_tokens,  # type: ignore
+        api_key=api_key,
+        base_url="https://openrouter.ai/api/v1",
         default_headers={"HTTP-Referer": "http://localhost:3000", "X-Title": "Dean Valuation Engine"},
         **kwargs,
     )
 
 
-def get_model_for_agent(agent_type: str, config: Dict[str, Any] = None) -> ChatOpenAI:
+def get_model_for_agent(agent_type: str, config: Optional[Dict[str, Any]] = None) -> ChatOpenAI:
     """
     Get the appropriate OpenRouter model for a specific agent type.
 
@@ -75,8 +75,7 @@ def get_model_for_agent(agent_type: str, config: Dict[str, Any] = None) -> ChatO
     # Get model name for agent type
     model_name = models.get(agent_type, "openai/gpt-4o")
 
-    # Get base configuration
-    base_url = openrouter_config.get("base_url", "https://openrouter.ai/api/v1")
+    # Get API key from configuration
     api_key = openrouter_config.get("api_key") or os.getenv("OPENROUTER_API_KEY")
 
     if not api_key:

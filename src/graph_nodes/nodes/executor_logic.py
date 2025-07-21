@@ -7,7 +7,7 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 def executor_node(state: PlanExecuteState) -> dict[str, Any]:  
-    logger.info(f"--- EXECUTOR ---")
+    logger.info("--- EXECUTOR ---")
     plan: List[dict] = state["plan"]
     current_step_idx: int = state["current_step_index"]
     executed_steps_history: List[dict] = state["executed_steps"]
