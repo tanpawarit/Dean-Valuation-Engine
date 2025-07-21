@@ -21,3 +21,13 @@ openrouter:
 
 brave:
   token: "xxxxxx"
+
+# Checkpoint configuration (optional)
+checkpoint:
+  enabled: false                    # Enable/disable state checkpointing
+  base_dir: ".dean_state"          # Directory to store checkpoint files
+  keep_checkpoints: 10             # Number of checkpoints to keep per run
+  keep_runs: 5                     # Number of old runs to keep
+  auto_cleanup: true               # Automatically cleanup old files
+  save_on_error: true              # Save checkpoints even on errors
+  save_individual_steps: true      # Save individual step results

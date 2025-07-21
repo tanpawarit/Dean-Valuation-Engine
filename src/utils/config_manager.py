@@ -14,6 +14,26 @@ def get_config() -> Dict[str, Any]:
         raise RuntimeError("Configuration not loaded. Please call load_app_config() first.")
     return _app_config
 
+
+def get_checkpoint_config() -> Dict[str, Any]:
+    """Get checkpoint-specific configuration settings."""
+    config = get_config()
+    checkpoint_config = config.get('checkpoint', {})
+    
+    # Default checkpoint settings
+    defaults = {
+        'enabled': False,
+        'base_dir': '.dean_state',
+        'keep_checkpoints': 10,
+        'keep_runs': 5,
+        'auto_cleanup': True,
+        'save_on_error': True,
+        'save_individual_steps': True
+    }
+    
+    # Merge with user config
+    return {**defaults, **checkpoint_config}
+
 def _setup_environment_variables() -> None:
     config = get_config()
     openai_config = config.get('openai', {})

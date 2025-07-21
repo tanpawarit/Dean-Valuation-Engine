@@ -101,5 +101,22 @@ def executor_node(state: PlanExecuteState) -> dict[str, Any]:
     # LangGraph will preserve the old value of 'final_result' if it's not in the payload.
     if new_final_result != state.get("final_result"):
         return_payload["final_result"] = new_final_result
+    
+    # Save checkpoint after each step execution
+    try:
+        from src.graph_nodes.graph_builder import get_checkpoint_manager
+        checkpoint_manager = get_checkpoint_manager()
+        if checkpoint_manager:
+            # Merge current state with updates for checkpointing
+            checkpoint_state = {**state, **return_payload}
+            success = checkpoint_manager.save_checkpoint(checkpoint_state, "current")
+            if success:
+                logger.debug(f"Executor state checkpointed after step {current_step_idx + 1}")
+            else:
+                logger.warning("Failed to save executor checkpoint")
+    except ImportError:
+        pass  # Checkpointing not available
+    except Exception as e:
+        logger.warning(f"Checkpoint error in executor: {e}")
         
     return return_payload
