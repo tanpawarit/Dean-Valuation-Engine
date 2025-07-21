@@ -60,7 +60,7 @@ class Planner:
             2.  **Dynamic Keyword-Based Agent Assignment:**
                 Before classifying as a general query, check for keywords from each specialized agent. Use the following keyword mappings:
                 
-{keyword_triggers_section}
+                {keyword_triggers_section}
             
             3.  **Specialized Analysis Requests:**
                 a.  **Keyword Match:** Scan the user query for keywords from any specialized agent's domain. If keywords are found, assign to the corresponding agent.
