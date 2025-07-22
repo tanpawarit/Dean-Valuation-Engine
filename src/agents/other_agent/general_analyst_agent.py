@@ -4,8 +4,8 @@ from typing import Any
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.tools import BaseTool
 from langchain_core.runnables import Runnable
+from langchain_core.tools import BaseTool
 
 from src.tools.search_tools import search_tool
 from src.utils.openrouter_client import get_model_for_agent

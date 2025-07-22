@@ -4,8 +4,8 @@ from typing import Any
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.tools import BaseTool
 from langchain_core.runnables import Runnable
+from langchain_core.tools import BaseTool
 
 from src.tools.search_tools import search_tool
 from src.utils.logger import get_logger
@@ -112,7 +112,9 @@ class BusinessAnalystAgent:
 
         self.tools: list[BaseTool] = [search_tool]
 
-        self.agent: Runnable[Any, Any] = create_openai_tools_agent(llm=self.model, tools=self.tools, prompt=self.agent_prompt_template)
+        self.agent: Runnable[Any, Any] = create_openai_tools_agent(
+            llm=self.model, tools=self.tools, prompt=self.agent_prompt_template
+        )
 
         self.business_analyst_executor: AgentExecutor = AgentExecutor(
             agent=self.agent,
